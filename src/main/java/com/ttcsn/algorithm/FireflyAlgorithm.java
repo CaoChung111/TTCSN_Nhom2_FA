@@ -2,6 +2,8 @@ package com.ttcsn.algorithm;
 
 import java.util.*;
 
+import com.ttcsn.model.Edge;
+import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
 import com.ttcsn.config.*;
 
@@ -70,7 +72,70 @@ public class FireflyAlgorithm {
 	    }
 
 	    private Route crossover(Route r1, Route r2) {
-	        // TODO: lai ghép 2 lộ trình
+	        List<Node> n1 = new ArrayList<>(r1.getNodes());
+	        List<Node> n2 = new ArrayList<>(r2.getNodes());
+
+	        //Tìm danh sách điểm chung
+	        List<Node> commonNodes = new ArrayList<>();
+	        for (int i = 1; i < n1.size() - 1; i++) {
+	            Node n = n1.get(i);
+	            if (n2.contains(n)) {
+	                commonNodes.add(n);
+	            }
+	        }
+
+	        // Nếu có điểm chung thực hiện lai ghép
+	        if (commonNodes.size() > 0) {
+	            // Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
+	            Node cutPoint = commonNodes.get(random.nextInt(commonNodes.size()));
+
+	            int index1 = n1.indexOf(cutPoint);
+	            int index2 = n2.indexOf(cutPoint);
+
+	    
+	            List<Node> newRouteNodes = new ArrayList<>();
+	            newRouteNodes.addAll(n1.subList(0, index1 + 1));  
+	            newRouteNodes.addAll(n2.subList(index2 + 1, n2.size()));
+
+	            Route newRoute = new Route();
+	            
+	            for (int i = 0; i < newRouteNodes.size(); i++) {
+	                Node currentNode = newRouteNodes.get(i);
+	                Edge edge = null;
+	                
+	                // Tìm edge giữa node hiện tại và node tiếp theo
+	                if (i < newRouteNodes.size() - 1) {
+	                    Node nextNode = newRouteNodes.get(i + 1);
+	                    
+
+	                    if (i <= index1) {
+	                        // Phần này lấy từ r1
+	                        edge = findEdgeBetween(r1, currentNode, nextNode);
+	                    } else {
+	                        // Phần này lấy từ r2
+	                        edge = findEdgeBetween(r2, currentNode, nextNode);
+	                    }
+	                }
+	                
+	                newRoute.addStep(currentNode, edge);
+	            }
+	            
+	            return newRoute;
+	        }
+	        
+	        return new Route(r2);
+	    }
+
+	    private Edge findEdgeBetween(Route route, Node from, Node to) {
+	        List<Node> nodes = route.getNodes();
+	        List<Edge> edges = route.getEdges();
+	        
+	        for (int i = 0; i < nodes.size() - 1; i++) {
+	            if (nodes.get(i).equals(from) && nodes.get(i + 1).equals(to)) {
+	                return edges.get(i);
+	            }
+	        }
+	        
 	        return null;
 	    }
 
