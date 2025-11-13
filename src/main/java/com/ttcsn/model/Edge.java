@@ -22,12 +22,6 @@ public class Edge {
 		this.rushHourFactor = rushHourFactor;
 	}
 
-	// Các khung giờ cao điểm
-	private static final double AM_START = 7.0; // 7:00
-	private static final double AM_END = 9.0; // 9:00
-	private static final double PM_START = 16.5; // 16:30
-	private static final double PM_END = 18.5; // 18:30
-
 	// Phương thức tính thời gian di chuyển thực tế (giờ)
 	public double calculateTravelTime() {
 
