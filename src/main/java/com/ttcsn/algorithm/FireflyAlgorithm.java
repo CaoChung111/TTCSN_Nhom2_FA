@@ -14,7 +14,7 @@ public class FireflyAlgorithm {
 	        for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
 	            Route route = generateRandomRoute(Constant.START_POINT, Constant.END_POINT);
 	            Firefly firefly = new Firefly(route);
-	            firefly.calculateBrightness(Constant.MAX_COST, Constant.PENALTY_FACTOR);
+	            firefly.calculateBrightness();
 	            population.add(firefly);
 	        }
 
@@ -37,7 +37,7 @@ public class FireflyAlgorithm {
 
 	                        Route mutated = mutate(fi.getRoute());
 	                        fi.setRoute(mutated);
-	                        fi.calculateBrightness(Constant.MAX_COST, Constant.PENALTY_FACTOR);
+	                        fi.calculateBrightness();
 	                    }
 	                }
 	            }
