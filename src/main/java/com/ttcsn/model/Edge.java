@@ -24,8 +24,19 @@ public class Edge {
 
 	// Phương thức tính thời gian di chuyển thực tế (giờ)
 	public double calculateTravelTime() {
+		// 1. Tính thời gian di chuyển cơ bản (giờ)
+		// Công thức: distance (km) / speedLimit (km/h) = time (giờ)
+		double baseTravelTime = distance / speedLimit;
 
-		return 0;
+		// 2. Tính tổng thời gian chờ đèn đỏ (chuyển từ giây sang giờ)
+		// 1 giờ = 3600 giây
+		double totalWaitTime = (trafficLights * avgWaitTime) / 3600.0;
+				
+		// 3. Thời gian di chuyển thực tế sau khi áp dụng hệ số giờ cao điểm
+		// Hệ số rushHourFactor (> 1.0) làm tăng thời gian di chuyển tổng thể.
+		double actualTravelTime = (baseTravelTime + totalWaitTime) * rushHourFactor;
+
+		return actualTravelTime;
 	}
 
 	public Node getFrom() {
@@ -37,6 +48,7 @@ public class Edge {
 	}
 
 	public double getCost() {
+		
 		return cost;
 	}
 
