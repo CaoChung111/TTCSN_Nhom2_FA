@@ -1,81 +1,178 @@
 package com.ttcsn.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
+import com.ttcsn.config.Constant;
+import com.ttcsn.model.Edge;
+import com.ttcsn.model.Graph;
+import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
-import com.ttcsn.config.*;
 
 public class FireflyAlgorithm {
-	  private Random random = new Random();
+	private Random random = new Random();
+	private Graph graph;
 
-	    public Route run() {
-	        List<Firefly> population = new ArrayList<>();
+	public FireflyAlgorithm(Graph graph) {
+		this.graph = graph; // Nhận graph từ bên ngoài
+	}
 
-	        for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
-	            Route route = generateRandomRoute(Constant.START_POINT, Constant.END_POINT);
-	            Firefly firefly = new Firefly(route);
-	            firefly.calculateBrightness();
-	            population.add(firefly);
-	        }
+	public Route run() {
+		List<Firefly> population = new ArrayList<>();
 
-	        Firefly best = population.get(0);
-	        int g = 0;
-	        while ( g < Constant.MAX_GENERATION) {
-	            for (int i = 0; i < population.size(); i++) {
-	                for (int j = 0; j < population.size(); j++) {
-	                    Firefly fi = population.get(i);
-	                    Firefly fj = population.get(j);
+		for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
+//			Route route = generateRandomRoute(Constant.START_POINT, Constant.END_POINT);
+//			Firefly firefly = new Firefly(route);
+//			firefly.calculateBrightness();
+//			population.add(firefly);
+		}
 
-	                    if (fj.getBrightness() > fi.getBrightness()) {
-	                        double r = jaccardDistance(fi.getRoute(), fj.getRoute());
-	                        double beta = calculateAttractiveness(Constant.BETA_0, Constant.GAMMA, r);
+		Firefly best = population.get(0);
+		int g = 0;
+		while (g < Constant.MAX_GENERATION) {
+			for (int i = 0; i < population.size(); i++) {
+				for (int j = 0; j < population.size(); j++) {
+					Firefly fi = population.get(i);
+					Firefly fj = population.get(j);
 
-	                        if (random.nextDouble() < beta) {
-	                            Route newRoute = crossover(fi.getRoute(), fj.getRoute());
-	                            fi.setRoute(newRoute);
-	                        }
+					if (fj.getBrightness() > fi.getBrightness()) {
+						double r = jaccardDistance(fi.getRoute(), fj.getRoute());
+						double beta = calculateAttractiveness(Constant.BETA_0, Constant.GAMMA, r);
 
-	                        Route mutated = mutate(fi.getRoute());
-	                        fi.setRoute(mutated);
-	                        fi.calculateBrightness();
-	                    }
-	                }
-	            }
+						if (random.nextDouble() < beta) {
+							Route newRoute = crossover(fi.getRoute(), fj.getRoute());
+							fi.setRoute(newRoute);
+						}
 
-	            Collections.sort(population);
-	            if (population.get(0).getBrightness() > best.getBrightness()) {
-	                best = population.get(0);
-	            }
-	            g = g + 1;
-	        }
+						Route mutated = mutate(fi.getRoute());
+						fi.setRoute(mutated);
+						fi.calculateBrightness();
+					}
+				}
+			}
 
-	        return best.getRoute();
-	    }
-	    
-	    // --- HÀM PHỤ (bạn sẽ tự triển khai sau) ---
+			Collections.sort(population);
+			if (population.get(0).getBrightness() > best.getBrightness()) {
+				best = population.get(0);
+			}
+			g = g + 1;
+		}
 
-	    private Route generateRandomRoute(String start, String end) {
-	        // TODO: sinh ngẫu nhiên lộ trình từ A -> B
-	        return null;
-	    }
+		return best.getRoute();
+	}
 
-	    private double jaccardDistance(Route r1, Route r2) {
-	        // TODO: tính khoảng cách giữa 2 lộ trình
-	        return 0.0;
-	    }
+	// --- HÀM PHỤ (bạn sẽ tự triển khai sau) ---
 
-	    private double calculateAttractiveness(double beta0, double gamma, double distance) {
-	        // TODO: công thức β = β0 * e^(-γ * r^2)
-	        return 0.0;
-	    }
+	public Route generateRandomRoute(Node start, Node end) {
+		Route route = new Route();
+		List<Edge> path = new ArrayList<Edge>();
+		Set<Node> visited = new HashSet<>();
+		findPathDFS(start, end, path, visited);
+		Route newRoute = new Route();
+		newRoute.addStep(start, null);
+		for (Edge edge : path) {
+			newRoute.addStep(edge.getTo(), edge);
+		}
+		return newRoute;
+	}
 
-	    private Route crossover(Route r1, Route r2) {
-	        // TODO: lai ghép 2 lộ trình
-	        return null;
-	    }
+	public Route generateRandomRoute(Node start, Node end, Set<Node> existingNode) {
+		List<Edge> path = new ArrayList<Edge>();
+		Set<Node> visited = new HashSet<>(existingNode);
+		findPathDFS(start, end, path, visited);
+		Route newRoute = new Route();
+		newRoute.addStep(start, null);
+		for (Edge edge : path) {
+			newRoute.addStep(edge.getTo(), edge);
+		}
+		return newRoute;
+	}
 
-	    private Route mutate(Route route) {
-	        // TODO: đột biến lộ trình (đảo vị trí, thêm cạnh, v.v.)
-	        return route;
-	    }
+	public boolean findPathDFS(Node current, Node end, List<Edge> path, Set<Node> visited) {
+		visited.add(current);
+
+		if (current.equals(end)) {
+			return true;
+		}
+
+		List<Edge> neighbors = new ArrayList<>(graph.getNeighbors(current));
+		Collections.shuffle(neighbors, random);
+
+		for (Edge edge : neighbors) {
+			Node nextNode = edge.getTo();
+			// Dòng này bây giờ cực kỳ quan trọng
+			if (!visited.contains(nextNode)) {
+				path.add(edge);
+				if (findPathDFS(nextNode, end, path, visited)) {
+					return true;
+				}
+				path.remove(path.size() - 1);
+			}
+		}
+		return false;
+	}
+
+	public double jaccardDistance(Route r1, Route r2) {
+		// TODO: tính khoảng cách giữa 2 lộ trình
+		return 0.0;
+	}
+
+	public double calculateAttractiveness(double beta0, double gamma, double distance) {
+		// TODO: công thức β = β0 * e^(-γ * r^2)
+		return 0.0;
+	}
+
+	public Route crossover(Route r1, Route r2) {
+		// TODO: lai ghép 2 lộ trình
+		return null;
+	}
+
+	public Route mutate(Route route) {
+		System.out.println("\n[MUTATE] Lộ trình GỐC: " + route);
+		List<Node> nodes = route.getNodes();
+		if (nodes.size() < 2)
+			return route;
+
+		int u_index = random.nextInt(nodes.size() - 1);
+		int v_index = u_index + 1 + random.nextInt(nodes.size() - 1 - u_index);
+
+		Node u = nodes.get(u_index);
+		Node v = nodes.get(v_index);
+		System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " + u_index + ") TỚI [" + v + "] (index "
+				+ v_index + ")");
+
+		Set<Node> existingNodes = new HashSet<>();
+
+		for (int i = 0; i < u_index; i++) {
+			existingNodes.add(nodes.get(i));
+		}
+
+		for (int i = v_index + 1; i < nodes.size(); i++) {
+			existingNodes.add(nodes.get(i));
+		}
+
+		List<Edge> newEdges = new ArrayList<Edge>();
+		for (int i = 0; i < u_index; i++) {
+			newEdges.add(route.getEdges().get(i));
+		}
+		Route middleRoute = generateRandomRoute(u, v, existingNodes);
+		System.out.println("[MUTATE] --- Đoạn thay thế: " + middleRoute);
+		newEdges.addAll(middleRoute.getEdges());
+		for (int i = v_index; i < nodes.size() - 1; i++) {
+			newEdges.add(route.getEdges().get(i));
+		}
+
+		Route newRoute = new Route();
+		newRoute.addStep(nodes.get(0), null);
+		for (Edge edge : newEdges) {
+			newRoute.addStep(edge.getTo(), edge);
+		}
+		System.out.println("[MUTATE] Lộ trình MỚI: " + newRoute);
+
+		return newRoute;
+	}
 }

@@ -1,5 +1,6 @@
 package com.ttcsn.algorithm;
 
+import com.ttcsn.config.Constant;
 import com.ttcsn.model.Route;
 
 public class Firefly implements Comparable<Firefly> {
@@ -11,14 +12,14 @@ public class Firefly implements Comparable<Firefly> {
 	}
 
 	// Đánh giá độ sáng dựa trên hàm mục tiêu và hàm phạt
-	public void calculateBrightness(double maxCost, double penaltyFactor) {
+	public void calculateBrightness() {
 		double time = route.getTotalTime();
 		double cost = route.getTotalCost();
 
 		// Nếu vi phạm ngân sách, áp dụng hàm phạt
-		if (cost > maxCost) {
+		if (cost > Constant.MAX_COST) {
 			// Công thức phạt đơn giản: tăng thời gian ảo lên
-			double penalty = penaltyFactor * (cost - maxCost);
+			double penalty = Constant.PENALTY_FACTOR * (cost - Constant.MAX_COST);
 			this.brightness = 1.0 / (time + penalty);
 		} else {
 			this.brightness = 1.0 / time;
