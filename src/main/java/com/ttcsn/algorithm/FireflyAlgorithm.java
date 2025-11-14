@@ -2,6 +2,7 @@ package com.ttcsn.algorithm;
 
 import java.util.*;
 
+import com.ttcsn.model.Edge;
 import com.ttcsn.model.Route;
 import com.ttcsn.config.*;
 
@@ -14,7 +15,7 @@ public class FireflyAlgorithm {
 	        for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
 	            Route route = generateRandomRoute(Constant.START_POINT, Constant.END_POINT);
 	            Firefly firefly = new Firefly(route);
-	            firefly.calculateBrightness();
+	            firefly.calculateBrightness(Constant.MAX_COST, Constant.PENALTY_FACTOR);
 	            population.add(firefly);
 	        }
 
@@ -37,7 +38,7 @@ public class FireflyAlgorithm {
 
 	                        Route mutated = mutate(fi.getRoute());
 	                        fi.setRoute(mutated);
-	                        fi.calculateBrightness();
+	                        fi.calculateBrightness(Constant.MAX_COST, Constant.PENALTY_FACTOR);
 	                    }
 	                }
 	            }
@@ -61,12 +62,32 @@ public class FireflyAlgorithm {
 
 	    private double jaccardDistance(Route r1, Route r2) {
 	        // TODO: tính khoảng cách giữa 2 lộ trình
-	        return 0.0;
+	    	// Lấy tập hợp các cạnh (Edge Set) từ mỗi lộ trình
+	        Set<Edge> set1 = r1.getEdgeSet();
+	        Set<Edge> set2 = r2.getEdgeSet();
+	        
+	        // 1. Tính Intersection (Giao): |E₁ ∩ E₂|
+	        Set<Edge> intersection = new HashSet<>(set1);
+	        intersection.retainAll(set2); // Giữ lại các phần tử chung
+	        double intersectionSize = intersection.size();
+	        
+	        // 2. Tính Union (Hợp): |E₁ ∪ E₂| = |E₁| + |E₂| - |E₁ ∩ E₂|
+	        double unionSize = set1.size() + set2.size() - intersectionSize;
+	        
+	        if (unionSize == 0) {
+	            return 0.0;
+	        }
+
+	        // Jaccard Similarity (Độ tương đồng) = |Intersection| / |Union|
+	        double jaccardSimilarity = intersectionSize / unionSize;
+	        
+	        // Jaccard Distance (Khoảng cách) = 1 - Similarity
+	        return 1.0 - jaccardSimilarity;
 	    }
 
 	    private double calculateAttractiveness(double beta0, double gamma, double distance) {
 	        // TODO: công thức β = β0 * e^(-γ * r^2)
-	        return 0.0;
+	        return beta0 * Math.exp(-gamma * distance * distance);
 	    }
 
 	    private Route crossover(Route r1, Route r2) {

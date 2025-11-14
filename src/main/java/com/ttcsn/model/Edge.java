@@ -1,4 +1,5 @@
 package com.ttcsn.model;
+import com.ttcsn.config.Constant;
 
 public class Edge {
 	private Node from; // điểm bắt đầu
@@ -23,18 +24,31 @@ public class Edge {
 	}
 
 	// Phương thức tính thời gian di chuyển thực tế (giờ)
-	public double calculateTravelTime() {
+	public double calculateTravelTime(double startTime) {
+		// Khởi tạo hệ số ảnh hưởng (Mặc định là 1.0 - không giờ cao điểm)
+        double currentFactor = 1.0; 
+        
+        // Kiểm tra nếu thời điểm bắt đầu rơi vào giờ cao điểm (sử dụng hằng số từ Constant)
+        // Giờ cao điểm sáng: [7:00, 9:00)
+        if (startTime >= Constant.AM_START && startTime < Constant.AM_END) {
+            // Nếu là giờ cao điểm, sử dụng rushHourFactor đã gán cho cạnh này
+            currentFactor = this.rushHourFactor; 
+        }
+        // Giờ cao điểm chiều: [16:30, 18:30)
+        else if (startTime >= Constant.PM_START && startTime < Constant.PM_END) {
+            // Nếu là giờ cao điểm, sử dụng rushHourFactor đã gán cho cạnh này
+            currentFactor = this.rushHourFactor; 
+        }
+
 		// 1. Tính thời gian di chuyển cơ bản (giờ)
-		// Công thức: distance (km) / speedLimit (km/h) = time (giờ)
 		double baseTravelTime = distance / speedLimit;
 
 		// 2. Tính tổng thời gian chờ đèn đỏ (chuyển từ giây sang giờ)
-		// 1 giờ = 3600 giây
 		double totalWaitTime = (trafficLights * avgWaitTime) / 3600.0;
 				
 		// 3. Thời gian di chuyển thực tế sau khi áp dụng hệ số giờ cao điểm
-		// Hệ số rushHourFactor (> 1.0) làm tăng thời gian di chuyển tổng thể.
-		double actualTravelTime = (baseTravelTime + totalWaitTime) * rushHourFactor;
+        // currentFactor sẽ là rushHourFactor (nếu là giờ cao điểm) hoặc 1.0 (nếu không phải).
+		double actualTravelTime = baseTravelTime * currentFactor + totalWaitTime;
 
 		return actualTravelTime;
 	}
