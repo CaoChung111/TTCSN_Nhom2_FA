@@ -1,11 +1,17 @@
 package com.ttcsn.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
+import com.ttcsn.config.Constant;
 import com.ttcsn.model.Edge;
+import com.ttcsn.model.Graph;
 import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
-import com.ttcsn.config.*;
 
 public class FireflyAlgorithm {
 	  private Random random = new Random();
@@ -144,5 +150,4 @@ public class FireflyAlgorithm {
 	        return route;
 	    }
 	    
-	    //test
 }

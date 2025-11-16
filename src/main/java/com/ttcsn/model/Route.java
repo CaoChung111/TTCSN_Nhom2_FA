@@ -50,6 +50,10 @@ public class Route {
 		return new HashSet<>(edges);
 	}
 
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
 	public List<Node> getNodes() {
 		return nodes;
 	}
