@@ -18,6 +18,7 @@ public class Route {
 	public Route(List<Node> other) {
 		this.nodes = other;
 	}
+
 	public Route(Route other) {
 		this.nodes = new ArrayList<>(other.nodes);
 		this.edges = new ArrayList<>(other.edges);
@@ -56,10 +57,6 @@ public class Route {
 
 	public List<Node> getNodes() {
 		return nodes;
-	}
-	
-	public List<Edge> getEdges() {
-	    return edges;
 	}
 
 	public double getTotalTime() {
