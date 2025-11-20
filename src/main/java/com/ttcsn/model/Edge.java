@@ -1,4 +1,5 @@
 package com.ttcsn.model;
+import com.ttcsn.config.Constant;
 
 public class Edge {
 	private Node from; // điểm bắt đầu
@@ -23,9 +24,29 @@ public class Edge {
 	}
 
 	// Phương thức tính thời gian di chuyển thực tế (giờ)
-	public double calculateTravelTime() {
+	public double calculateTravelTime(double startTime) {
+		// Khởi tạo hệ số ảnh hưởng
+        double currentFactor = 1.0; 
+        
+        // Kiểm tra nếu thời điểm bắt đầu rơi vào giờ cao điểm
+        if (startTime >= Constant.AM_START && startTime < Constant.AM_END) {
+            currentFactor = this.rushHourFactor; 
+        }
 
-		return 0;
+        else if (startTime >= Constant.PM_START && startTime < Constant.PM_END) {
+            currentFactor = this.rushHourFactor; 
+        }
+
+		// Tính thời gian di chuyển cơ bản (giờ)
+		double baseTravelTime = distance / speedLimit;
+
+		// Tính tổng thời gian chờ đèn đỏ
+		double totalWaitTime = (trafficLights * avgWaitTime) / 3600.0;
+				
+		// Thời gian di chuyển thực tế sau khi áp dụng hệ số giờ cao điểm
+		double actualTravelTime = baseTravelTime * currentFactor + totalWaitTime;
+
+		return actualTravelTime;
 	}
 
 	public Node getFrom() {
@@ -37,6 +58,7 @@ public class Edge {
 	}
 
 	public double getCost() {
+		
 		return cost;
 	}
 

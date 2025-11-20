@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ttcsn.config.Constant;
+
+
 public class Route {
 	private List<Node> nodes = new ArrayList<>();
 	private List<Edge> edges = new ArrayList<>();
@@ -29,9 +32,17 @@ public class Route {
 	// Thêm 1 bước di chuyển vào lộ trình
 	public void addStep(Node node, Edge edge) {
 		nodes.add(node);
+        
 		if (edge != null) {
+            
+            // LƯU Ý: totalTime phải là tổng thời gian của các cạnh đã có TRƯỚC khi thêm cạnh này.
+            double startTime = Constant.TIME_START + totalTime;
+
+            double currentEdgeTime = edge.calculateTravelTime(startTime);
+
 			edges.add(edge);
-			totalTime += edge.calculateTravelTime();
+            
+			totalTime += currentEdgeTime; 
 			totalCost += edge.getCost();
 		}
 	}
@@ -40,8 +51,15 @@ public class Route {
 	public void recalculate() {
 		totalTime = 0;
 		totalCost = 0;
+        
+        double currentTime = Constant.TIME_START; 
+        
 		for (Edge e : edges) {
-			totalTime += e.calculateTravelTime();
+			double currentEdgeTime = e.calculateTravelTime(currentTime);
+            
+			totalTime += currentEdgeTime;
+            currentTime += currentEdgeTime;
+            
 			totalCost += e.getCost();
 		}
 	}

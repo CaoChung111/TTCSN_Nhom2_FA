@@ -1,11 +1,6 @@
 package com.ttcsn.algorithm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Edge;
@@ -187,13 +182,33 @@ public class FireflyAlgorithm {
 	// Tính khoảng cách r
 	public double jaccardDistance(Route r1, Route r2) {
 		// TODO: tính khoảng cách giữa 2 lộ trình
-		return 0.0;
+    	// Lấy tập hợp các cạnh (Edge Set) từ mỗi lộ trình
+        Set<Edge> set1 = r1.getEdgeSet();
+        Set<Edge> set2 = r2.getEdgeSet();
+        
+        // 1. Tính Intersection (Giao): |E₁ ∩ E₂|
+        Set<Edge> intersection = new HashSet<>(set1);
+        intersection.retainAll(set2); // Giữ lại các phần tử chung
+        double intersectionSize = intersection.size();
+        
+        // 2. Tính Union (Hợp): |E₁ ∪ E₂| = |E₁| + |E₂| - |E₁ ∩ E₂|
+        double unionSize = set1.size() + set2.size() - intersectionSize;
+        
+        if (unionSize == 0) {
+            return 0.0;
+        }
+
+        // Jaccard Similarity (Độ tương đồng) = |Intersection| / |Union|
+        double jaccardSimilarity = intersectionSize / unionSize;
+        
+        // Jaccard Distance (Khoảng cách) = 1 - Similarity
+        return 1.0 - jaccardSimilarity;
 	}
 
 	// Tính độ hấp dẫn
 	public double calculateAttractiveness(double beta0, double gamma, double distance) {
 		// TODO: công thức β
-		return 0.0;
+		return beta0 * Math.exp(-gamma * distance * distance);
 	}
 
 	// Đột biến

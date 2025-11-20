@@ -3,6 +3,7 @@ package com.ttcsn.config;
 public class Constant {
 	public static final String START_POINT = "A";
 	public static final String END_POINT = "B";
+	public static final double TIME_START = 6.5; // 6:30
 
 	// Giới hạn và hệ số phạt
 	public static final double MAX_COST = 100.0; // C_max
@@ -15,10 +16,10 @@ public class Constant {
 	public static final int MAX_GENERATION = 100; // gen_max - số thế hệ tối đa
 
 	// Các khung giờ cao điểm
-	private static final double AM_START = 7.0; // 7:00
-	private static final double AM_END = 9.0; // 9:00
-	private static final double PM_START = 16.5; // 16:30
-	private static final double PM_END = 18.5; // 18:30
+	public static final double AM_START = 7.0; // 7:00
+	public static final double AM_END = 9.0; // 9:00
+	public static final double PM_START = 16.5; // 16:30
+	public static final double PM_END = 18.5; // 18:30
 
 	private Constant() {
 	}
