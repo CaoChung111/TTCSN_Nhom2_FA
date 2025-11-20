@@ -2,48 +2,48 @@ package com.ttcsn;
 
 import com.ttcsn.algorithm.FireflyAlgorithm;
 import com.ttcsn.model.Graph;
-import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
 import com.ttcsn.service.GraphService;
+import com.ttcsn.service.RoutingService;
 
 public class Main {
 	public static void main(String[] args) {
-		System.out.println("--- BẮT ĐẦU TEST HÀM MUTATE (ĐỘT BIẾN) ---");
+		System.out.println("=== KHỞI CHẠY TEST THUẬT TOÁN FIREFLY ===");
 
-		try {
-			// 1. Tải đồ thị (Graph)
-			GraphService loader = new GraphService();
-			String filePath = "src/main/resources/graph_data.json";
-			Graph graph = loader.loadGraphFromJson(filePath);
-			System.out.println(">>> Đã tải Graph thành công.");
+		// 1. Load dữ liệu đồ thị từ file JSON
+		// Đảm bảo đường dẫn file đúng với nơi bạn lưu file data.json
+		String filePath = "src/main/resources/graph_data.json";
+		GraphService graphService = new GraphService();
+		Graph graph = graphService.loadGraphFromJson(filePath);
 
-			// 2. Lấy điểm đầu (A) và cuối (T)
-			Node start = graph.getNode(1);
-			Node end = graph.getNode(8);
-			if (start == null || end == null) {
-				System.err.println("Lỗi: Không tìm thấy A hoặc T.");
-				return;
-			}
+		if (graph == null) {
+			System.err.println("Không thể tải đồ thị. Dừng chương trình.");
+			return;
+		}
 
-			// 3. Khởi tạo FireflyAlgorithm (truyền graph vào)
-			FireflyAlgorithm fa = new FireflyAlgorithm(graph);
+		// 2. Khởi tạo Service nghiệp vụ
+		RoutingService routingService = new RoutingService();
+		// Inject graph vào routingService (cần thêm setter như hướng dẫn trên)
+		routingService.setGraph(graph);
 
-			// 4. Tạo 1 lộ trình GỐC
-			Route originalRoute = fa.generateRandomRoute(start, end);
-			System.out.println("\n--- LỘ TRÌNH GỐC ---");
-			System.out.println(originalRoute); // In lộ trình gốc
+		// 3. Khởi tạo thuật toán
+		// Cần thêm constructor cho FireflyAlgorithm như hướng dẫn trên
+		FireflyAlgorithm fa = new FireflyAlgorithm(graph, routingService);
 
-			// 5. Test hàm mutate 5 lần
-			System.out.println("\n--- BẮT ĐẦU ĐỘT BIẾN 5 LẦN ---");
-			for (int i = 1; i <= 10; i++) {
-				System.out.println("Lần đột biến " + i);
-				Route mutatedRoute = fa.mutate(originalRoute);
-				System.out.println("/n/n ");
-			}
+		// 4. Chạy thuật toán
+		long startTime = System.currentTimeMillis();
+		Route bestRoute = fa.run();
+		long endTime = System.currentTimeMillis();
 
-		} catch (Exception e) {
-			System.err.println("!!! LỖI TRONG QUÁ TRÌNH TEST:");
-			e.printStackTrace(); // Bắt các lỗi NullPointerException
+		// 5. In kết quả
+		System.out.println("\n=== KẾT QUẢ TỐI ƯU ===");
+		if (bestRoute != null && !bestRoute.getNodes().isEmpty()) {
+			System.out.println("Lộ trình tốt nhất: " + bestRoute.toString());
+			System.out.printf("Tổng thời gian: %.2f giờ\n", bestRoute.getTotalTime());
+			System.out.printf("Tổng chi phí: %.2f VNĐ\n", bestRoute.getTotalCost());
+			System.out.println("Thời gian chạy thuật toán: " + (endTime - startTime) + "ms");
+		} else {
+			System.out.println("Không tìm thấy lộ trình nào!");
 		}
 	}
 }

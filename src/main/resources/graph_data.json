@@ -1,11 +1,11 @@
 {
   "nodes": [
-    { "id": 1, "name": "A (Start)" },
+    { "id": 1, "name": "A" },
     { "id": 2, "name": "B" },
     { "id": 3, "name": "C" },
     { "id": 4, "name": "D" },
     { "id": 5, "name": "E" },
-    { "id": 6, "name": "T (End)" },
+    { "id": 6, "name": "T" },
     { "id": 7, "name": "F (Hub 1)" },
     { "id": 8, "name": "G (Hub 2)" },
     { "id": 9, "name": "I (Hub 3)" },

@@ -21,12 +21,27 @@ public class Graph {
 		edges.get(edge.getFrom().getId()).add(edge);
 	}
 
+	// Overload thêm hàm lấy theo tên nếu cần (nhưng sẽ chậm hơn vì phải duyệt)
+	public Node getNodeByName(String name) {
+		for (Node node : nodes.values()) {
+			if (node.getName().equals(name)) {
+				return node;
+			}
+		}
+		return null;
+	}
+
 	public Node getNode(int id) {
 		return nodes.get(id);
 	}
 
 	public List<Edge> getNeighbors(Node node) {
-		return edges.get(node.getId());
+		List<Edge> list = edges.get(node.getId());
+		// Nếu null (không tìm thấy hoặc chưa init) -> trả về list rỗng
+		if (list == null) {
+			return new ArrayList<>();
+		}
+		return list;
 	}
 
 	public Collection<Node> getAllNodes() {
