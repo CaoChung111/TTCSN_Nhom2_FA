@@ -6,6 +6,7 @@ import com.ttcsn.model.Node;
 
 // Lớp DTO đại diện cho toàn bộ file JSON
 public class GraphData {
+
 	// Tên "nodes" và "edges" phải khớp với file JSON
 	// Chúng ta có thể tái sử dụng lớp Node của bạn vì nó đơn giản
 	private List<Node> nodes;

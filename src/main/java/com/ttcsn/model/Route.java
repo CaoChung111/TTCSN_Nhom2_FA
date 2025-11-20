@@ -26,7 +26,7 @@ public class Route {
 		this.totalCost = other.totalCost;
 	}
 
-	// thêm 1 bước di chuyển vào lộ trình
+	// Thêm 1 bước di chuyển vào lộ trình
 	public void addStep(Node node, Edge edge) {
 		nodes.add(node);
 		if (edge != null) {

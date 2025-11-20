@@ -20,7 +20,6 @@ public class Node {
 	}
 
 	// đảm bảo hoạt động chính xác
-
 	// So sánh 2 Node
 	@Override
 	public boolean equals(Object o) {
