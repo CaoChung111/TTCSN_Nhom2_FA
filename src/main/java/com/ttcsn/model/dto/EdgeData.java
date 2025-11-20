@@ -2,7 +2,6 @@ package com.ttcsn.model.dto;
 
 //Lớp DTO để GSON đọc dữ liệu thô của Cạnh
 public class EdgeData {
-	// Tên biến phải khớp với file JSON
 	private int fromId;
 	private int toId;
 	private double distance;
@@ -12,7 +11,6 @@ public class EdgeData {
 	private double avgWaitTime;
 	private double rushHourFactor;
 
-	// Getters để GraphService truy cập
 	public int getFromId() {
 		return fromId;
 	}

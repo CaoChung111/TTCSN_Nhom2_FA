@@ -18,9 +18,10 @@ public class FireflyAlgorithm {
 	private Graph graph;
 
 	public FireflyAlgorithm(Graph graph) {
-		this.graph = graph; // Nhận graph từ bên ngoài
+		this.graph = graph; // Nhận graph đầu vào
 	}
 
+	// Hàm chạy thuật toán
 	public Route run() {
 		List<Firefly> population = new ArrayList<>();
 
@@ -65,8 +66,8 @@ public class FireflyAlgorithm {
 		return best.getRoute();
 	}
 
-	// --- HÀM PHỤ (bạn sẽ tự triển khai sau) ---
-
+	// --- HÀM PHỤ sẽ được để trong class RoutingService ---
+	// Tạo 1 lộ trình ngẫu nhiên
 	public Route generateRandomRoute(Node start, Node end) {
 		Route route = new Route();
 		List<Edge> path = new ArrayList<Edge>();
@@ -80,6 +81,7 @@ public class FireflyAlgorithm {
 		return newRoute;
 	}
 
+	// Ghi đè dùng cho hàm mutate
 	public Route generateRandomRoute(Node start, Node end, Set<Node> existingNode) {
 		List<Edge> path = new ArrayList<Edge>();
 		Set<Node> visited = new HashSet<>(existingNode);
@@ -92,6 +94,7 @@ public class FireflyAlgorithm {
 		return newRoute;
 	}
 
+	// Tìm lộ trình
 	public boolean findPathDFS(Node current, Node end, List<Edge> path, Set<Node> visited) {
 		visited.add(current);
 
@@ -104,7 +107,6 @@ public class FireflyAlgorithm {
 
 		for (Edge edge : neighbors) {
 			Node nextNode = edge.getTo();
-			// Dòng này bây giờ cực kỳ quan trọng
 			if (!visited.contains(nextNode)) {
 				path.add(edge);
 				if (findPathDFS(nextNode, end, path, visited)) {
@@ -116,21 +118,25 @@ public class FireflyAlgorithm {
 		return false;
 	}
 
+	// Tính khoảng cách r
 	public double jaccardDistance(Route r1, Route r2) {
 		// TODO: tính khoảng cách giữa 2 lộ trình
 		return 0.0;
 	}
 
+	// Tính độ hấp dẫn
 	public double calculateAttractiveness(double beta0, double gamma, double distance) {
-		// TODO: công thức β = β0 * e^(-γ * r^2)
+		// TODO: công thức β
 		return 0.0;
 	}
 
+	// Lai ghép
 	public Route crossover(Route r1, Route r2) {
-		// TODO: lai ghép 2 lộ trình
+		// TODO: lai ghép
 		return null;
 	}
 
+	// Đột biến
 	public Route mutate(Route route) {
 		System.out.println("\n[MUTATE] Lộ trình GỐC: " + route);
 		List<Node> nodes = route.getNodes();
