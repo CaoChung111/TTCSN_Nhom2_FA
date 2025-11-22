@@ -43,4 +43,9 @@ public class Firefly implements Comparable<Firefly> {
 		// Sắp xếp giảm dần theo độ sáng (sáng hơn đứng trước)
 		return Double.compare(other.brightness, this.brightness);
 	}
+	@Override
+	public String toString() {
+	    return route.toString() + "  [" + String.format("%.5f", brightness) + "]";
+	}
+
 }

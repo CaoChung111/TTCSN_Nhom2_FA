@@ -19,7 +19,6 @@ public class Node {
 		return name;
 	}
 
-	// đảm bảo hoạt động chính xác
 	// So sánh 2 Node
 	@Override
 	public boolean equals(Object o) {
@@ -36,4 +35,9 @@ public class Node {
 	public int hashCode() {
 		return Objects.hash(id);
 	}
+	@Override
+	public String toString() {
+	    return String.format("Node(id=%d, name=%s)", id, name);
+	}
+
 }
