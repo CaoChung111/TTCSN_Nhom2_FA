@@ -2,7 +2,7 @@ package com.ttcsn.config;
 
 public class Constant {
 	public static final String START_POINT = "A";
-	public static final String END_POINT = "T";
+	public static final String END_POINT = "M (Hub 5)";
 	public static final double TIME_START = 8.5; // 8:30
 
 	// Giới hạn và hệ số phạt
