@@ -35,7 +35,6 @@ public class Route {
         
 		if (edge != null) {
             
-            // LƯU Ý: totalTime phải là tổng thời gian của các cạnh đã có TRƯỚC khi thêm cạnh này.
             double startTime = Constant.TIME_START + totalTime;
 
             double currentEdgeTime = edge.calculateTravelTime(startTime);
