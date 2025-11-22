@@ -3,8 +3,10 @@ package com.ttcsn.algorithm;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Graph;
@@ -24,23 +26,29 @@ public class FireflyAlgorithm {
 
 	// Hàm chạy thuật toán
 	public Route run() {
-		DecimalFormat df = new DecimalFormat("#.###");
 		List<Firefly> population = new ArrayList<>();
-		System.out.println("Khởi tạo");
-		for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
-			Node start = graph.getNodeByName(Constant.START_POINT);
-			Node end = graph.getNodeByName(Constant.END_POINT);
-			Route route = routingService.generateRandomRoute(start, end);
-			Firefly firefly = new Firefly(route);
-			firefly.calculateBrightness();
-			population.add(firefly);
-		}
+		Set<Firefly> exitsFirefly = new HashSet<>();
+		DecimalFormat df = new DecimalFormat("#.###");
+		do {
+			population.clear();
+			exitsFirefly.clear();
+			System.out.println("Khởi tạo");
+			for (int i = 0; i < Constant.POPULATION_SIZE; i++) {
+				Node start = graph.getNodeByName(Constant.START_POINT);
+				Node end = graph.getNodeByName(Constant.END_POINT);
+				Route route = routingService.generateRandomRoute(start, end);
+				Firefly firefly = new Firefly(route);
+				firefly.calculateBrightness();
+				population.add(firefly);
+				exitsFirefly.add(firefly);	
+			}
+		}while(exitsFirefly.size() == 1);
 		
 		//Log khởi tạo
 		for (int i = 0; i < population.size(); i++) {
 		    Firefly f = population.get(i);
-		    String brightnessStr = df.format(f.getBrightness());
-		    System.out.println((i + 1) + ". [" + brightnessStr + "] " + f.getRoute().toString());
+//		    String brightnessStr = df.format(f.getBrightness());
+		    System.out.println((i + 1) + ". [" + f.getBrightness() + "] " + f.getRoute().toString());
 		}
 		// End Log khởi tạo
 
@@ -73,7 +81,7 @@ public class FireflyAlgorithm {
 							}
 						}else {
 							if(!test) {
-								System.out.println("random = " + df.format(randomBeta) +" < beta = "+df.format(beta) + " => True");
+								System.out.println("random = " + df.format(randomBeta) +" < beta = "+df.format(beta) + " => False");
 							}
 						}
 						Route mutated = routingService.mutate(fi.getRoute());
@@ -90,6 +98,7 @@ public class FireflyAlgorithm {
 			}
 			g = g + 1;
 			test = true;
+			System.out.println("\n");
 		}
 
 		return best.getRoute();
