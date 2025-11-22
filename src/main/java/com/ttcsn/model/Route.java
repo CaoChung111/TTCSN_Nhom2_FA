@@ -3,10 +3,10 @@ package com.ttcsn.model;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.ttcsn.config.Constant;
-
 
 public class Route {
 	private List<Node> nodes = new ArrayList<>();
@@ -32,16 +32,16 @@ public class Route {
 	// Thêm 1 bước di chuyển vào lộ trình
 	public void addStep(Node node, Edge edge) {
 		nodes.add(node);
-        
-		if (edge != null) {
-            
-            double startTime = Constant.TIME_START + totalTime;
 
-            double currentEdgeTime = edge.calculateTravelTime(startTime);
+		if (edge != null) {
+
+			double startTime = Constant.TIME_START + totalTime;
+
+			double currentEdgeTime = edge.calculateTravelTime(startTime);
 
 			edges.add(edge);
-            
-			totalTime += currentEdgeTime; 
+
+			totalTime += currentEdgeTime;
 			totalCost += edge.getCost();
 		}
 	}
@@ -50,15 +50,15 @@ public class Route {
 	public void recalculate() {
 		totalTime = 0;
 		totalCost = 0;
-        
-        double currentTime = Constant.TIME_START; 
-        
+
+		double currentTime = Constant.TIME_START;
+
 		for (Edge e : edges) {
 			double currentEdgeTime = e.calculateTravelTime(currentTime);
-            
+
 			totalTime += currentEdgeTime;
-            currentTime += currentEdgeTime;
-            
+			currentTime += currentEdgeTime;
+
 			totalCost += e.getCost();
 		}
 	}
@@ -82,6 +82,22 @@ public class Route {
 
 	public double getTotalCost() {
 		return totalCost;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Route route = (Route) o;
+		// Hai lộ trình bằng nhau nếu danh sách Node giống hệt nhau
+		return Objects.equals(nodes, route.nodes);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(nodes);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.ttcsn.algorithm;
 
+import java.util.Objects;
+
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Route;
 
@@ -39,13 +41,30 @@ public class Firefly implements Comparable<Firefly> {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Firefly firefly = (Firefly) o;
+		// Hai con đom đóm bằng nhau nếu chúng đi cùng một lộ trình
+		return Objects.equals(route, firefly.route);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(route);
+	}
+
+	@Override
 	public int compareTo(Firefly other) {
 		// Sắp xếp giảm dần theo độ sáng (sáng hơn đứng trước)
 		return Double.compare(other.brightness, this.brightness);
 	}
+
 	@Override
 	public String toString() {
-	    return route.toString() + "  [" + String.format("%.5f", brightness) + "]";
+		return route.toString() + "  [" + String.format("%.5f", brightness) + "]";
 	}
 
 }

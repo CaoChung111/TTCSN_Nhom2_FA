@@ -10,9 +10,8 @@ public class Main {
 	public static void main(String[] args) {
 		System.out.println("=== KHỞI CHẠY TEST THUẬT TOÁN FIREFLY ===");
 
-		// 1. Load dữ liệu đồ thị từ file JSON
-		// Đảm bảo đường dẫn file đúng với nơi bạn lưu file data.json
-		String filePath = "src/main/resources/graph_data.json";
+		// Load dữ liệu đồ thị từ file JSON
+		String filePath = "src/main/resources/graph_data2.json";
 		GraphService graphService = new GraphService();
 		Graph graph = graphService.loadGraphFromJson(filePath);
 
@@ -21,16 +20,14 @@ public class Main {
 			return;
 		}
 
-		// 2. Khởi tạo Service nghiệp vụ
+		// Khởi tạo Service nghiệp vụ
 		RoutingService routingService = new RoutingService();
-		// Inject graph vào routingService (cần thêm setter như hướng dẫn trên)
 		routingService.setGraph(graph);
 
-		// 3. Khởi tạo thuật toán
-		// Cần thêm constructor cho FireflyAlgorithm như hướng dẫn trên
+		// Khởi tạo thuật toán
 		FireflyAlgorithm fa = new FireflyAlgorithm(graph, routingService);
 
-		// 4. Chạy thuật toán
+		// Chạy thuật toán
 		long startTime = System.currentTimeMillis();
 		Route bestRoute = fa.run();
 		long endTime = System.currentTimeMillis();
