@@ -56,6 +56,5 @@
     { "fromId": 4, "toId": 11, "cost": 11000, "distance": 10, "speedLimit": 40, "trafficLights": 5, "avgWaitTime": 45, "rushHourFactor": 1.7 },
     { "fromId": 9, "toId": 13, "cost": 6000, "distance": 5, "speedLimit": 60, "trafficLights": 1, "avgWaitTime": 20, "rushHourFactor": 1.0 },
     { "fromId": 10, "toId": 14, "cost": 7000, "distance": 6, "speedLimit": 50, "trafficLights": 2, "avgWaitTime": 25, "rushHourFactor": 1.2 },
-    { "fromId": 1, "toId": 6, "cost": 90000, "distance": 25, "speedLimit": 100, "trafficLights": 1, "avgWaitTime": 60, "rushHourFactor": 1.0 }
   ]
 }
