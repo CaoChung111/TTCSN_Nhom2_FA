@@ -1,6 +1,5 @@
 package com.ttcsn.algorithm;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,112 +8,147 @@ import java.util.Random;
 import java.util.Set;
 
 import com.ttcsn.config.Constant;
-import com.ttcsn.model.Graph;
 import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
 import com.ttcsn.service.RoutingService;
 
 public class FireflyAlgorithm {
-	private Random random = new Random();
-	private RoutingService routingService;
-	private Graph graph;
+    private final Random random = new Random();
+    private final RoutingService routingService;
+    private final List<Firefly> population = new ArrayList<>();
 
-	public FireflyAlgorithm(Graph graph, RoutingService routingService) {
-		this.graph = graph;
-		this.routingService = routingService;
-	}
+    // Format bảng
+    private static final String TABLE_FORMAT  = "| %-4d | %-10.5f | %-12.0f | %-10.2f | %-10.2f | %-40s |%n";
+    private static final String BORDER        = "+------+------------+--------------+------------+------------+------------------------------------------------------------------------------------------------------------------------------+";
+    private static final String HEADER_FORMAT = "| %-4s | %-10s | %-12s | %-10s | %-10s | %-100s |%n";
 
-	// Hàm chạy thuật toán
-	public Route run() {
-		List<Firefly> population = new ArrayList<>();
-		Set<Route> exitsFirefly = new HashSet<>();
-		int attempts = 0, maxAttempts = Constant.POPULATION_SIZE * 10; // Giới hạn số lần thử
-		DecimalFormat df = new DecimalFormat("#.###");
+    public FireflyAlgorithm(RoutingService routingService) {
+        this.routingService = routingService;
+    }
 
-		while (population.size() < Constant.POPULATION_SIZE && attempts < maxAttempts) {
-			attempts++;
-			Node start = graph.getNodeByName(Constant.START_POINT);
-			Node end = graph.getNodeByName(Constant.END_POINT);
-			Route route = routingService.generateRandomRoute(start, end);
-			if (route == null) {
-				return null;
-			}
-			if (!exitsFirefly.contains(route) || attempts > Constant.POPULATION_SIZE * 2) {
-				Firefly firefly = new Firefly(route);
-				firefly.calculateBrightness();
-				population.add(firefly);
-				exitsFirefly.add(route);
-			}
-		}
+    public Route run() {
+        System.out.println("=== BẮT ĐẦU THUẬT TOÁN FIREFLY ===");
+        Set<Route> existRoute = new HashSet<>();
+        int attempts = 0, maxAttempts = Constant.POPULATION_SIZE * 4;
+        Node start = routingService.getNode(Constant.START_POINT);
+        Node end = routingService.getNode(Constant.END_POINT);
+        if (start == null || end == null) return null;
 
-		// Log khởi tạo
-		for (int i = 0; i < population.size(); i++) {
-			Firefly f = population.get(i);
-			System.out.println((i + 1) + ". [" + f.getBrightness() + "] " + f.getRoute().toString());
-		}
-		// End Log khởi tạo
+        // --- 1. KHỞI TẠO QUẦN THỂ ---
+        System.out.print("Đang khởi tạo quần thể... ");
+        while (population.size() < Constant.POPULATION_SIZE && attempts < maxAttempts) {
+            attempts++;
+            Route route = routingService.generateRandomRoute(start, end);
+            if (route != null && (!existRoute.contains(route) || attempts > Constant.POPULATION_SIZE * 3)) {
+                Firefly firefly = new Firefly(route);
+                firefly.calculateBrightness();
+                population.add(firefly);
+                existRoute.add(route);
+            }
+        }
+        System.out.println("Hoàn tất (" + population.size() + " cá thể).\n");
 
-		Firefly best = population.get(0);
-		int g = 0;
-		boolean test = false;
-		while (g < Constant.MAX_GENERATION) {
-			if (!test)
-				System.out.println("GEN = " + g);
-			for (int i = 0; i < population.size(); i++) {
-				for (int j = 0; j < population.size(); j++) {
-					Firefly fi = population.get(i);
-					Firefly fj = population.get(j);
-					if (!test) {
-						System.out.println("i = " + i + "," + "j = " + j);
-						System.out.println(
-								"f[i]" + ". [" + df.format(fi.getBrightness()) + "] " + fi.getRoute().toString());
-						System.out.println(
-								"f[j]" + ". [" + df.format(fj.getBrightness()) + "] " + fj.getRoute().toString());
-					}
-					if (fj.getBrightness() > fi.getBrightness()) {
-						double r = routingService.jaccardDistance(fi.getRoute(), fj.getRoute());
-						double beta = routingService.calculateAttractiveness(Constant.BETA_0, Constant.GAMMA, r);
-						if (!test)
-							System.out.println("f[i] < f[j] = True");
-						double randomBeta = random.nextDouble();
-						if (randomBeta < beta) {
+        // --- 2. IN CHI TIẾT QUẦN THỂ BAN ĐẦU ---
+        System.out.println("--- DANH SÁCH QUẦN THỂ BAN ĐẦU ---");
+        System.out.println("+-----+------------+--------------------------------------------------+");
+        System.out.printf("| %-3s | %-10s | %-48s |%n", "ID", "ĐỘ SÁNG", "LỘ TRÌNH");
+        System.out.println("+-----+------------+--------------------------------------------------+");
+        for (int i = 0; i < population.size(); i++) {
+            Firefly f = population.get(i);
+            System.out.printf("| %-3d | %-10.5f | %-100s |%n",
+                    (i + 1), f.getBrightness(), truncate(f.getRoute().toString(), 100));
+        }
+        System.out.println("+-----+------------+----------------------------------------------------------------------------------------------------+\n");
 
-							Route newRoute = routingService.crossover(fj.getRoute(), fi.getRoute());
-							fi.setRoute(newRoute);
-							if (!test) {
-								System.out.println("random = " + df.format(randomBeta) + " < beta = " + df.format(beta)
-										+ " => True");
-								System.out.println("[CROSSOVER] " + newRoute.toString());
-							}
-						} else {
-							if (!test) {
-								System.out.println("random = " + df.format(randomBeta) + " < beta = " + df.format(beta)
-										+ " => False");
-								System.out.println("[CROSSOVER] Không thực hiện");
-							}
-						}
-						Route mutated = routingService.mutate(fi.getRoute());
-						fi.setRoute(mutated);
-						if (!test)
-							System.out.println("[MUTATED] " + mutated.toString());
-						fi.calculateBrightness();
-					}
-				}
-			}
+        // --- 3. IN HEADER BẢNG TIẾN TRÌNH ---
+        System.out.println("TIẾN TRÌNH TỐI ƯU HÓA (BEST OF GEN):");
+        System.out.println(BORDER);
+        System.out.printf(HEADER_FORMAT, "GEN", "ĐỘ SÁNG", "CHI PHÍ", "T.GIAN", "Q.ĐƯỜNG", "LỘ TRÌNH (TỐI ƯU GEN)");
+        System.out.println(BORDER);
 
-			Collections.sort(population);
-			if (population.get(0).getBrightness() > best.getBrightness()) {
-				best = population.get(0);
-				System.out.println("\n");
-			}
-			g = g + 1;
-			test = true;
-		}
+        // --- VÒNG LẶP CHÍNH ---
+        Firefly best = population.get(0);
+        int g = 0;
 
-		return best.getRoute();
-	}
+        // Biến theo dõi sự trì trệ
+        int stagnationCount = 0;
+        double lastBestBrightness = -1.0;
 
-	// --- HÀM PHỤ sẽ được để trong class RoutingService ---
-	// Tạo 1 lộ trình ngẫu nhiên
+        while (g < Constant.MAX_GENERATION) {
+            for (int i = 0; i < population.size(); i++) {
+                for (int j = 0; j < population.size(); j++) {
+                    Firefly fi = population.get(i);
+                    Firefly fj = population.get(j);
 
+                    if (fj.getBrightness() > fi.getBrightness()) {
+                        double r = routingService.jaccardDistance(fi.getRoute(), fj.getRoute());
+                        double beta = routingService.calculateAttractiveness(Constant.BETA_0, Constant.GAMMA, r);
+
+                        if (random.nextDouble() < beta) {
+                            Route newRoute = routingService.crossover(fi.getRoute(), fj.getRoute());
+                            fi.setRoute(newRoute);
+                        }
+                        if (random.nextDouble() < Constant.ALPHA) {
+                            Route mutated = routingService.mutate(fi.getRoute());
+                            fi.setRoute(mutated);
+                        }
+                        fi.calculateBrightness();
+                    }
+                }
+            }
+
+            // Sắp xếp lại quần thể sau một thế hệ di chuyển
+            Collections.sort(population);
+
+            // Cập nhật Best toàn cục (Global Best)
+            Firefly currentBest = population.get(0);
+            if (currentBest.getBrightness() > best.getBrightness()) {
+                best = currentBest;
+            }
+
+            // Kiểm tra xem độ sáng tốt nhất của Gen này có khác Gen trước không
+            if (currentBest.getBrightness() == lastBestBrightness) {
+                stagnationCount++;
+            } else {
+                stagnationCount = 0;
+                lastBestBrightness = currentBest.getBrightness();
+            }
+
+            // Nếu kẹt quá 15 lần -> Đột biến các cá thể trù 5 cá thể tốt nhất
+            if (stagnationCount > 20) {
+                System.out.printf("| %-137s |%n", ">> CẢNH BÁO: Kẹt 15 Gen liên tiếp! Kích hoạt đột biến diện rộng (Trừ Top 5)...");
+                for (int k = 5; k < population.size(); k++) {
+                    Firefly f = population.get(k);
+                    Route mutatedRoute = routingService.mutate(f.getRoute());
+                    f.setRoute(mutatedRoute);
+                    f.calculateBrightness();
+                }
+                stagnationCount = 0;
+                //Collections.sort(population);
+            }
+            // ----------------------------------------------
+
+            // --- IN KẾT QUẢ GEN VÀO BẢNG ---
+            Route r = best.getRoute();
+            System.out.printf(TABLE_FORMAT,
+                    g,
+                    best.getBrightness(),
+                    r.getTotalCost(),
+                    r.getTotalTime(),
+                    r.getTotalDistance(),
+                    truncate(r.toString(), 100)
+            );
+
+            g++;
+        }
+        System.out.println(BORDER);
+
+        return best.getRoute();
+    }
+
+    private String truncate(String str, int maxWidth) {
+        if (str == null) return "";
+        if (str.length() <= maxWidth) return str;
+        return str.substring(0, maxWidth - 3) + "...";
+    }
 }

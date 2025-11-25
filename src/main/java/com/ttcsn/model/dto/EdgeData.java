@@ -4,7 +4,6 @@ package com.ttcsn.model.dto;
 public class EdgeData {
 
 	// Tên biến phải khớp với file JSON
-
 	private int fromId;
 	private int toId;
 	private double distance;

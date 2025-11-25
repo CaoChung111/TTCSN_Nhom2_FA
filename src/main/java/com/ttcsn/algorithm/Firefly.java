@@ -1,7 +1,5 @@
 package com.ttcsn.algorithm;
 
-import java.util.Objects;
-
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Route;
 
@@ -38,22 +36,6 @@ public class Firefly implements Comparable<Firefly> {
 
 	public void setRoute(Route newRoute) {
 		this.route = newRoute;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		Firefly firefly = (Firefly) o;
-		// Hai con đom đóm bằng nhau nếu chúng đi cùng một lộ trình
-		return Objects.equals(route, firefly.route);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(route);
 	}
 
 	@Override

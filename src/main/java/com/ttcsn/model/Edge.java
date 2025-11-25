@@ -2,14 +2,14 @@ package com.ttcsn.model;
 import com.ttcsn.config.Constant;
 
 public class Edge {
-	private Node from; // điểm bắt đầu
-	private Node to; // điểm đến
-	private double distance; // khoảng cách (km)
-	private double speedLimit; // giới hạn tốc độ (km/h)
-	private double cost; // chi phí (VNĐ)
-	private int trafficLights; // số đèn đỏ
-	private double avgWaitTime; // thời gian chờ trung bình (giây)
-	private double rushHourFactor;// hệ số giờ
+	private final Node from; // điểm bắt đầu
+	private final Node to; // điểm đến
+	private final double distance; // khoảng cách (km)
+	private final double speedLimit; // giới hạn tốc độ (km/h)
+	private final double cost; // chi phí (VNĐ)
+	private final int trafficLights; // số đèn đỏ
+	private final double avgWaitTime; // thời gian chờ trung bình (giây)
+	private final double rushHourFactor;// hệ số giờ
 
 	public Edge(Node from, Node to, double distance, double speedLimit, double cost, int trafficLights,
 			double avgWaitTime, double rushHourFactor) {
@@ -44,9 +44,7 @@ public class Edge {
 		double totalWaitTime = (trafficLights * avgWaitTime) / 3600.0;
 				
 		// Thời gian di chuyển thực tế sau khi áp dụng hệ số giờ cao điểm
-		double actualTravelTime = baseTravelTime * currentFactor + totalWaitTime;
-
-		return actualTravelTime;
+        return baseTravelTime * currentFactor + totalWaitTime;
 	}
 
 	public Node getFrom() {
@@ -57,6 +55,9 @@ public class Edge {
 		return to;
 	}
 
+    public double getDistance() {
+        return distance;
+    }
 	public double getCost() {
 		
 		return cost;

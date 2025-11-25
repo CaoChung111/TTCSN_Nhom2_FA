@@ -3,8 +3,8 @@ package com.ttcsn.model;
 import java.util.Objects;
 
 public class Node {
-	private int id;
-	private String name;
+	private final int id;
+	private final String name;
 
 	public Node(int id, String name) {
 		this.id = id;

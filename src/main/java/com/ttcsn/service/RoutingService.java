@@ -13,30 +13,31 @@ import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
 
 /**
- * Thực hiện các nghiệp vụ của thuật toán: 1. Tìm đường đi ngẫu nhiên
- * (GenerateRandomRoute) 2. Tính độ sáng (CalculateBrightness) 3. Tính khoảng
- * cách (JaccardDistance) 4. Tính độ hấp dẫn (CalculateAttractiveness) 5. Lai
- * ghép (Crossover) 6. Đột biến (Mutate)
+ * Thực hiện các nghiệp vụ của thuật toán: 1. Tìm đường đi ngẫu
+ * nhiên(GenerateRandomRoute) 2. Tính độ sáng (CalculateBrightness) 3. Tính
+ * khoảng cách (JaccardDistance) 4. Tính độ hấp dẫn (CalculateAttractiveness) 5.
+ * Lai ghép (Crossover) 6. Đột biến (Mutate)
  */
 public class RoutingService {
-	private Random random = new Random();
+	private final Random random = new Random();
 	private Graph graph;
 
 	public void setGraph(Graph graph) {
 		this.graph = graph;
 	}
 
+	public Node getNode(String name) {
+		return graph.getNodeByName(name);
+	}
+
 	public Route generateRandomRoute(Node start, Node end) {
 		List<Edge> path = new ArrayList<>();
 		Set<Node> visited = new HashSet<>();
-
 		boolean found = findPathDFS(start, end, path, visited);
-
 		if (!found) {
 			System.err.println("Cảnh báo: Không tìm thấy đường từ " + start.getName() + " đến " + end.getName());
 			return null;
 		}
-
 		return buildRouteFromPath(start, path);
 	}
 
@@ -84,15 +85,14 @@ public class RoutingService {
 
 		// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
 		Node cutPoint = commonNodes.get(random.nextInt(commonNodes.size()));
-		System.out.println("Điểm chung: " + cutPoint);
+		//System.out.println("Điểm chung: " + cutPoint);
 
 		int index1 = n1.indexOf(cutPoint); // r1
 		int index2 = n2.indexOf(cutPoint); // r2
 
 		// Tạo route mới: đầu từ r1 đến cutPoint, cuối từ r2 sau cutPoint
-		List<Node> newRouteNodes = new ArrayList<>();
-		newRouteNodes.addAll(n1.subList(0, index1 + 1)); // phần đầu r1
-		if (index2 + 1 < n2.size()) {
+        List<Node> newRouteNodes = new ArrayList<>(n1.subList(0, index1 + 1)); // phần đầu r1
+        if (index2 + 1 < n2.size()) {
 			newRouteNodes.addAll(n2.subList(index2 + 1, n2.size())); // phần sau r2
 		}
 
@@ -115,7 +115,7 @@ public class RoutingService {
 				// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
 				if (edge == null) {
 					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r2");
-					return new Route(r2);
+					return mutate(r1);
 				}
 			}
 
@@ -136,18 +136,15 @@ public class RoutingService {
 				}
 			}
 		}
-
 		return null;
 	}
 
 	// Tìm lộ trình
 	public boolean findPathDFS(Node current, Node end, List<Edge> path, Set<Node> visited) {
 		visited.add(current);
-
 		if (current.equals(end)) {
 			return true;
 		}
-
 		List<Edge> neighbors = new ArrayList<>(graph.getNeighbors(current));
 		Collections.shuffle(neighbors, random);
 
@@ -166,33 +163,31 @@ public class RoutingService {
 
 	// Tính khoảng cách r
 	public double jaccardDistance(Route r1, Route r2) {
-		// TODO: tính khoảng cách giữa 2 lộ trình
 		// Lấy tập hợp các cạnh (Edge Set) từ mỗi lộ trình
 		Set<Edge> set1 = r1.getEdgeSet();
 		Set<Edge> set2 = r2.getEdgeSet();
 
-		// 1. Tính Intersection (Giao): |E₁ ∩ E₂|
+		// 1. Tính giao
 		Set<Edge> intersection = new HashSet<>(set1);
 		intersection.retainAll(set2); // Giữ lại các phần tử chung
 		double intersectionSize = intersection.size();
 
-		// 2. Tính Union (Hợp): |E₁ ∪ E₂| = |E₁| + |E₂| - |E₁ ∩ E₂|
+		// 2. Tính hợp
 		double unionSize = set1.size() + set2.size() - intersectionSize;
 
 		if (unionSize == 0) {
 			return 0.0;
 		}
 
-		// Jaccard Similarity (Độ tương đồng) = |Intersection| / |Union|
+		// Jaccard Similarity = Giao / Hợp
 		double jaccardSimilarity = intersectionSize / unionSize;
 
-		// Jaccard Distance (Khoảng cách) = 1 - Similarity
+		// Jaccard Distance = 1 - Similarity
 		return 1.0 - jaccardSimilarity;
 	}
 
 	// Tính độ hấp dẫn
 	public double calculateAttractiveness(double beta0, double gamma, double distance) {
-		// TODO: công thức β
 		return beta0 * Math.exp(-gamma * distance * distance);
 	}
 
@@ -210,8 +205,7 @@ public class RoutingService {
 
 		Node u = nodes.get(u_index);
 		Node v = nodes.get(v_index);
-//		System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " + u_index + ") TỚI [" + v + "] (index "
-//				+ v_index + ")");
+        /* System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " + u_index + ") TỚI [" + v + "] (index " + v_index + ")"); */
 
 		Set<Node> existingNodes = new HashSet<>();
 		for (int i = 0; i < u_index; i++) {
@@ -221,13 +215,13 @@ public class RoutingService {
 			existingNodes.add(nodes.get(i));
 		}
 
-		List<Edge> newEdges = new ArrayList<Edge>();
+		List<Edge> newEdges = new ArrayList<>();
 		for (int i = 0; i < u_index; i++) {
 			newEdges.add(route.getEdges().get(i));
 		}
 		Route middleRoute = generateRandomRoute(u, v, existingNodes);
 		if (middleRoute == null || middleRoute.getEdges().isEmpty()) {
-			System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ nguyên.");
+            //	System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ nguyên.");
 			return route;
 		}
 //		System.out.println("[MUTATE] --- Đoạn thay thế: " + middleRoute);

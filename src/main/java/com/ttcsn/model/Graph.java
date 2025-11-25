@@ -1,14 +1,13 @@
 package com.ttcsn.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Graph {
-	private Map<Integer, Node> nodes = new HashMap<>(); // tìm đối tượng Node
-	private Map<Integer, List<Edge>> edges = new HashMap<>(); // Danh sách kề
+	private final Map<Integer, Node> nodes = new HashMap<>(); // tìm đối tượng Node
+	private final Map<Integer, List<Edge>> edges = new HashMap<>(); // Danh sách kề
 
 	// thêm đỉnh
 	public void addNode(Node node) {
@@ -42,9 +41,5 @@ public class Graph {
 			return new ArrayList<>();
 		}
 		return list;
-	}
-
-	public Collection<Node> getAllNodes() {
-		return nodes.values();
 	}
 }

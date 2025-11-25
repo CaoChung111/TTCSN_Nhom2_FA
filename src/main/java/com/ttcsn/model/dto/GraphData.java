@@ -8,7 +8,7 @@ import com.ttcsn.model.Node;
 public class GraphData {
 
 	// Tên "nodes" và "edges" phải khớp với file JSON
-	// Chúng ta có thể tái sử dụng lớp Node của bạn vì nó đơn giản
+	// Tái sử dụng lớp Node của bạn vì nó đơn giản
 	private List<Node> nodes;
 	private List<EdgeData> edges;
 
