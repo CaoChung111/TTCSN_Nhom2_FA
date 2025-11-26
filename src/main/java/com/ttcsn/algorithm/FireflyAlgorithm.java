@@ -1,5 +1,9 @@
 package com.ttcsn.algorithm;
+import com.ttcsn.model.dto.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.gson.Gson;
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
@@ -16,6 +21,7 @@ public class FireflyAlgorithm {
 	private final Random random = new Random();
 	private final RoutingService routingService;
 	private final List<Firefly> population = new ArrayList<>();
+	List<GenData> bestOfGen = new ArrayList<>();
 
 	// --- CẤU HÌNH FORMAT BẢNG (ĐÃ CĂN CHỈNH) ---
 	// Gen(6) | Bright(12) | Cost(14) | Time(12) | Dist(12) | Route(102)
@@ -125,8 +131,8 @@ public class FireflyAlgorithm {
 			// Kích hoạt đột biến khi kẹt
 			int stagnationMax = Math.max(15, Constant.POPULATION_SIZE);
 			if (stagnationCount > stagnationMax) {
-				System.out.printf(WARNING_FORMAT, ">> CẢNH BÁO: Kẹt " + stagnationMax
-						+ " Gen liên tiếp! Kích hoạt đột biến diện rộng (Trừ Top 3)...");
+//				System.out.printf(WARNING_FORMAT, ">> CẢNH BÁO: Kẹt " + stagnationMax
+//						+ " Gen liên tiếp! Kích hoạt đột biến diện rộng (Trừ Top 3)...");
 
 				for (int k = 2; k < population.size(); k++) {
 					Firefly f = population.get(k);
@@ -142,10 +148,25 @@ public class FireflyAlgorithm {
 			Route r = best.getRoute();
 			System.out.printf(TABLE_FORMAT, g, best.getBrightness(), r.getTotalCost(), r.getTotalTime(),
 					r.getTotalDistance(), truncate(r.toString(), 57));
-
+			bestOfGen.add(new GenData(
+				    g,
+				    best.getBrightness(),
+				    r.getTotalCost(),
+				    r.getTotalTime(),
+				    r.getTotalDistance(),
+				    truncate(r.toString(), 57)
+				));
 			g++;
 		}
 		System.out.println(BORDER);
+		
+		// sau khi đã điền bestOfGen
+		try {
+            FireflyOutput.exportAndOpen(bestOfGen);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
 		return best.getRoute();
 	}

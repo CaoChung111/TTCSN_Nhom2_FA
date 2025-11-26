@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefly Algorithm Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        .chart-wrapper {
+            position: relative;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+        canvas {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            .chart-wrapper {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Độ sáng tối ưu theo Gen</h2>
+        <div class="chart-wrapper">
+            <canvas id="brightnessChart"></canvas>
+        </div>
+    </div>
+    <script>
+        const data = [{"gen":0,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":1,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":2,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":3,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":4,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":5,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":6,"brightness":1.9344438473938739,"cost":29000.0,"time":0.5169444444444445,"distance":26.0,"route":"A -\u003e B -\u003e C -\u003e K"},{"gen":7,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":8,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":9,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":10,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":11,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":12,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":13,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":14,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":15,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":16,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":17,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":18,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":19,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":20,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":21,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":22,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":23,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":24,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":25,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":26,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":27,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":28,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":29,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":30,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":31,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":32,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":33,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":34,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":35,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":36,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":37,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":38,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"},{"gen":39,"brightness":2.0828167617158444,"cost":27000.0,"time":0.4801190476190476,"distance":24.0,"route":"A -\u003e B -\u003e J -\u003e K"}];
+        const labels = data.map(d => d.gen);
+        const brightness = data.map(d => d.brightness);
+        const ctx = document.getElementById('brightnessChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Độ sáng',
+                    data: brightness,
+                    fill: true,
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderColor: 'rgb(102, 126, 234)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: 'rgb(118, 75, 162)',
+                    pointHoverBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 14, weight: '600' },
+                            color: '#2c3e50',
+                            padding: 15
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Gen',
+                            font: { size: 14, weight: '600' },
+                            color: '#2c3e50'
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#555' }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Độ sáng',
+                            font: { size: 14, weight: '600' },
+                            color: '#2c3e50'
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#555' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
