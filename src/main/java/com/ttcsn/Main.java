@@ -1,60 +1,76 @@
 package com.ttcsn;
 
 import com.ttcsn.algorithm.FireflyAlgorithm;
+import com.ttcsn.config.Constant;
 import com.ttcsn.model.Graph;
 import com.ttcsn.model.Route;
+import com.ttcsn.service.ConfigService;
 import com.ttcsn.service.GraphService;
+import com.ttcsn.service.ReportService;
 import com.ttcsn.service.RoutingService;
 
 public class Main {
+
 	public static void main(String[] args) {
-		// ... (Phần load graph giữ nguyên) ...
-		String filePath = "src/main/resources/I_11N_22E.json";
-		GraphService graphService = new GraphService();
-		Graph graph = graphService.loadGraphFromJson(filePath);
+		System.out.println(">>> KHỞI ĐỘNG ỨNG DỤNG TÌM ĐƯỜNG FIREFLY...\n");
 
-		if (graph == null)
-			return;
+		try {
+			// BƯỚC 1: CẤU HÌNH (Đã có try-catch bên trong hàm nhập liệu)
+			ConfigService config = new ConfigService();
+			GraphService loadGraphJson = new GraphService();
+			config.runMenu();
 
-		RoutingService routingService = new RoutingService();
-		routingService.setGraph(graph);
-		FireflyAlgorithm fa = new FireflyAlgorithm(routingService);
+			// BƯỚC 2: LOAD DỮ LIỆU ĐỒ THỊ
+			// Cần try-catch ở đây phòng trường hợp file json bị xóa hoặc sai đường dẫn
+			System.out.println(">> Đang tải dữ liệu đồ thị từ: " + Constant.GRAPH_FILE_PATH);
+			Graph graph = null;
 
-		long startTime = System.currentTimeMillis();
-		Route bestRoute = fa.run(); // Hàm này giờ sẽ in ra cái bảng tiến trình
-		long endTime = System.currentTimeMillis();
+			try {
+				graph = loadGraphJson.loadGraphFromJson(Constant.GRAPH_FILE_PATH);
+			} catch (Exception e) {
+				System.err.println("[LỖI] Không đọc được file dữ liệu!");
+				System.err.println("Chi tiết: " + e.getMessage());
+				System.out.println("Vui lòng kiểm tra lại đường dẫn file trong DatasetProfile.");
+				return; // Dừng chương trình ngay
+			}
 
-		// --- IN KẾT QUẢ TỐI ƯU CUỐI CÙNG ---
-		if (bestRoute != null) {
-			printFinalResult(bestRoute, endTime - startTime);
-		} else {
-			System.out.println("❌ Không tìm thấy lộ trình!");
+			if (graph == null) {
+				System.err.println("[LỖI] Dữ liệu đồ thị bị rỗng (null).");
+				return;
+			}
+			System.out.println("--> [OK] Tải thành công file dữ liệu\n");
+
+			// BƯỚC 3: KHỞI TẠO SERVICE
+			RoutingService routingService = new RoutingService();
+			routingService.setGraph(graph);
+
+			// Kiểm tra điểm đầu/cuối có tồn tại trong đồ thị không
+			if (routingService.getNode(Constant.START_POINT) == null
+					|| routingService.getNode(Constant.END_POINT) == null) {
+				System.err.println("[LỖI] Điểm bắt đầu hoặc kết thúc không tồn tại trong bản đồ!");
+				System.err.println("Start: " + Constant.START_POINT + " | End: " + Constant.END_POINT);
+				return;
+			}
+
+			// BƯỚC 4: CHẠY THUẬT TOÁN
+			FireflyAlgorithm fa = new FireflyAlgorithm(routingService);
+			long startTime = System.currentTimeMillis();
+			Route bestRoute = fa.run();
+			long endTime = System.currentTimeMillis();
+			long duration = endTime - startTime;
+			System.out.println("\n>>> CHƯƠNG TRÌNH HOÀN TẤT THÀNH CÔNG!");
+			System.out.println("    Thời gian chạy: " + duration + " ms");
+
+			// Xuất báo cáo văn bản
+			ReportService reportService = new ReportService();
+			reportService.saveFinalReport(bestRoute, duration);
+
+		} catch (Exception e) {
+			// Catch tất cả các lỗi không lường trước khác (NullPointer, OutOfMemory...)
+			System.err.println("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			System.err.println("ĐÃ XẢY RA LỖI KHÔNG MONG MUỐN:");
+			e.printStackTrace(); // In vết lỗi để debug
+			System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
-	}
-
-	private static void printFinalResult(Route route, long duration) {
-		System.out.println("\n=== TỔNG KẾT KẾT QUẢ ===");
-		System.out.println(
-				"+----------------------+------------------------------------------------------------------------+");
-		System.out.println(
-				"| THÔNG SỐ             | GIÁ TRỊ                                                                |");
-		System.out.println(
-				"+----------------------+------------------------------------------------------------------------+");
-
-		String fmt = "| %-20s | %-70s |%n";
-
-		// Cắt chuỗi lộ trình nếu quá dài để không vỡ bảng
-		String routeStr = route.toString();
-		if (routeStr.length() > 70)
-			routeStr = routeStr.substring(0, 65) + "...";
-
-		System.out.printf(fmt, "Lộ trình tối ưu", routeStr);
-		System.out.printf(fmt, "Tổng chi phí", String.format("%,.0f VNĐ", route.getTotalCost()));
-		System.out.printf(fmt, "Tổng thời gian", String.format("%.2f giờ", route.getTotalTime()));
-		System.out.printf(fmt, "Tổng quãng đường", String.format("%.2f km", route.getTotalDistance()));
-		System.out.printf(fmt, "Thời gian thực thi", duration + " ms");
-
-		System.out.println(
-				"+----------------------+------------------------------------------------------------------------+");
 	}
 }

@@ -80,7 +80,7 @@ public class RoutingService {
 
 		// Không có điểm chung => không lai ghép, r1 giữ nguyên
 		if (commonNodes.isEmpty()) {
-			return new Route(mutate(r1));
+			return new Route(r1);
 		}
 
 		// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
@@ -106,7 +106,7 @@ public class RoutingService {
 			if (i < newRouteNodes.size() - 1) {
 				Node nextNode = newRouteNodes.get(i + 1);
 
-				// Tìm edge ưu tiên trong r2, fallback r1
+				// Tìm edge ưu tiên trong r1, fallback r2
 				edge = findEdgeBetween(r1, currentNode, nextNode);
 				if (edge == null) {
 					edge = findEdgeBetween(r2, currentNode, nextNode);
@@ -115,7 +115,7 @@ public class RoutingService {
 				// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
 				if (edge == null) {
 					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r1");
-					return mutate(r1);
+					return new Route(r1);
 				}
 			}
 

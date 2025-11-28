@@ -1,0 +1,25 @@
+==================================================
+          BÁO CÁO KẾT QUẢ TỐI ƯU HÓA              
+==================================================
+Ngày chạy: 2025/11/28 17:15:44
+
+--- 1. CẤU HÌNH ---
+Bộ dữ liệu:    src/main/resources/I_20N_80E.json
+Lộ trình:      A -> T
+Giờ khởi hành: 6.5h
+Ngân sách:     200,000 VNĐ
+Số đom đóm:    20
+Số thế hệ:     40
+Tham số:       Alpha=0.40, Gamma=0.50, Beta0=1.00
+
+--- 2. KẾT QUẢ TỐI ƯU NHẤT ---
+Tổng Chi phí:  14,000 VNĐ
+Tổng Thời gian:0.28 giờ
+Tổng Quãng đường: 13.00 km
+Chi tiết lộ trình:
+  A -> B -> T
+>> TRẠNG THÁI: [HỢP LỆ] (Thỏa mãn ngân sách)
+
+--- 3. HIỆU NĂNG ---
+Thời gian thực thi: 47 ms
+==================================================

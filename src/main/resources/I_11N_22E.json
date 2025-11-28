@@ -10,7 +10,7 @@
     { "id": 8, "name": "M" },
     { "id": 9, "name": "N" },
     { "id": 10, "name": "P" },
-    { "id": 11, "name": "T" },
+    { "id": 11, "name": "T" }
   ],
   "edges": [
       { "fromId": 1, "toId": 2, "cost": 5000, "distance": 5, "speedLimit": 50, "trafficLights": 1, "avgWaitTime": 15, "rushHourFactor": 1.1 },
@@ -60,6 +60,6 @@
       { "fromId": 10, "toId": 4, "cost": 21000, "distance": 18, "speedLimit": 80, "trafficLights": 2, "avgWaitTime": 25, "rushHourFactor": 1.2 },
       { "fromId": 10, "toId": 7, "cost": 16500, "distance": 13, "speedLimit": 70, "trafficLights": 1, "avgWaitTime": 15, "rushHourFactor": 1.1 },
       
-      { "fromId": 10, "toId": 11, "cost": 10000, "distance": 2, "speedLimit": 60, "trafficLights": 2, "avgWaitTime": 20, "rushHourFactor": 1.2 },
+      { "fromId": 10, "toId": 11, "cost": 10000, "distance": 2, "speedLimit": 60, "trafficLights": 2, "avgWaitTime": 20, "rushHourFactor": 1.2 }
     ]
   }
