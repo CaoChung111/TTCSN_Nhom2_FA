@@ -66,8 +66,8 @@ public class RoutingService {
 	}
 
 	public Route crossover(Route r1, Route r2) {
-		List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 sáng hơn
-		List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 kém hơn
+		List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 kém hơn
+		List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 sáng hơn
 
 		// Tìm các điểm chung (trừ đầu và cuối)
 		List<Node> commonNodes = new ArrayList<>();
@@ -78,9 +78,9 @@ public class RoutingService {
 			}
 		}
 
-		// Không có điểm chung => không lai ghép, r2 giữ nguyên
+		// Không có điểm chung => không lai ghép, r1 giữ nguyên
 		if (commonNodes.isEmpty()) {
-			return new Route(r2);
+			return new Route(mutate(r1));
 		}
 
 		// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
@@ -112,9 +112,9 @@ public class RoutingService {
 					edge = findEdgeBetween(r2, currentNode, nextNode);
 				}
 
-				// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
+				// Nếu vẫn null => không hợp lệ, r1 giữ nguyên
 				if (edge == null) {
-					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r2");
+					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r1");
 					return mutate(r1);
 				}
 			}

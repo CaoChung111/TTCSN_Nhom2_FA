@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Biểu đồ Phân tán: Time vs Cost</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 900px; }
+        h2 { text-align: center; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Phân bố Giải pháp (Thế hệ cuối)</h2>
+        <p style='text-align:center'>Budget: 200,000 VNĐ</p>
+        <canvas id="scatterChart"></canvas>
+    </div>
+    <script>
+        const rawData = [{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true},{"cost":14000.0,"time":0.3360555555555556,"isValid":true}];
+        const BUDGET = 200000.0;
+
+        // Tách dữ liệu thành 2 nhóm: Hợp lệ (Xanh) và Vi phạm (Đỏ)
+        const validPoints = rawData.filter(p => p.isValid).map(p => ({ x: p.cost, y: p.time }));
+        const invalidPoints = rawData.filter(p => !p.isValid).map(p => ({ x: p.cost, y: p.time }));
+
+        const ctx = document.getElementById('scatterChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Hợp lệ (Thỏa mãn)',
+                        data: validPoints,
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'Vi phạm (Quá ngân sách)',
+                        data: invalidPoints,
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        pointStyle: 'crossRot',
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                xMin: BUDGET,
+                                xMax: BUDGET,
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 2,
+                                borderDash: [6, 6],
+                                label: { display: true, content: 'Ngân sách Max', position: 'start', backgroundColor: 'rgba(255, 99, 132, 0.8)' }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return 'Cost: ' + ctx.parsed.x.toLocaleString() + ' | Time: ' + ctx.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Chi phí (VNĐ)' } },
+                    y: { title: { display: true, text: 'Thời gian (Giờ)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

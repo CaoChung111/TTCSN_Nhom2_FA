@@ -1,212 +1,162 @@
 package com.ttcsn.algorithm;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.ttcsn.model.dto.GenData;
+import com.ttcsn.config.Constant;
+import com.ttcsn.model.dto.FireflyPoint;
 
 public class FireflyOutput {
 
-    /**
-     * Xuất dữ liệu sang JSON (tùy chọn, để lưu backup)
-     */
-    public static void saveJson(List<GenData> bestOfGen, String path) throws IOException {
-        Gson gson = new Gson();
-        try (FileWriter writer = new FileWriter(path)) {
-            gson.toJson(bestOfGen, writer);
+    // Đường dẫn file
+    private static final String OUTPUT_DIR = "src/main/resources/output/";
+    private static final String JSON_FILE = OUTPUT_DIR + "firefly_data.json";
+    private static final String HTML_FILE = OUTPUT_DIR + "firefly_comparison_chart.html";
+
+    private static class ChartDataWrapper {
+        List<FireflyPoint> initial;
+        List<FireflyPoint> finals;
+        double budget;
+
+        public ChartDataWrapper(List<FireflyPoint> initial, List<FireflyPoint> finals, double budget) {
+            this.initial = initial;
+            this.finals = finals;
+            this.budget = budget;
         }
     }
 
-    /**
-     * Xuất HTML với dữ liệu nhúng sẵn, dùng Chart.js vẽ line chart
-     */
-    public static void saveHtml(List<GenData> bestOfGen, String path) throws IOException {
+    public static void saveDataToJson(List<FireflyPoint> initial, List<FireflyPoint> finals) {
+        new File(OUTPUT_DIR).mkdirs();
+        ChartDataWrapper data = new ChartDataWrapper(initial, finals, Constant.MAX_COST); // Dùng MAX_COST
         Gson gson = new Gson();
-        String jsonData = gson.toJson(bestOfGen);
+        try (FileWriter writer = new FileWriter(JSON_FILE)) {
+            gson.toJson(data, writer);
+            System.out.println("--> [OK] Đã lưu dữ liệu JSON tại: " + JSON_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportComparisonCharts() throws IOException {
+        File jsonFile = new File(JSON_FILE);
+        if (!jsonFile.exists()) return;
+
+        String jsonContent = new String(Files.readAllBytes(Paths.get(JSON_FILE)));
 
         String htmlContent = ""
-                + "<!DOCTYPE html>\n"
-                + "<html lang=\"en\">\n"
-                + "<head>\n"
-                + "    <meta charset=\"UTF-8\">\n"
-                + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-                + "    <title>Firefly Algorithm Chart</title>\n"
-                + "    <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n"
-                + "    <style>\n"
-                + "        * {\n"
-                + "            margin: 0;\n"
-                + "            padding: 0;\n"
-                + "            box-sizing: border-box;\n"
-                + "        }\n"
-                + "        body {\n"
-                + "            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n"
-                + "            display: flex;\n"
-                + "            flex-direction: column;\n"
-                + "            align-items: center;\n"
-                + "            justify-content: center;\n"
-                + "            min-height: 100vh;\n"
-                + "            padding: 40px 20px;\n"
-                + "            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n"
-                + "        }\n"
-                + "        .container {\n"
-                + "            background: #ffffff;\n"
-                + "            border-radius: 20px;\n"
-                + "            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);\n"
-                + "            padding: 40px;\n"
-                + "            max-width: 1000px;\n"
-                + "            width: 100%;\n"
-                + "        }\n"
-                + "        h2 {\n"
-                + "            color: #2c3e50;\n"
-                + "            text-align: center;\n"
-                + "            margin-bottom: 30px;\n"
-                + "            font-size: 28px;\n"
-                + "            font-weight: 600;\n"
-                + "            position: relative;\n"
-                + "            padding-bottom: 15px;\n"
-                + "        }\n"
-                + "        h2::after {\n"
-                + "            content: '';\n"
-                + "            position: absolute;\n"
-                + "            bottom: 0;\n"
-                + "            left: 50%;\n"
-                + "            transform: translateX(-50%);\n"
-                + "            width: 80px;\n"
-                + "            height: 4px;\n"
-                + "            background: linear-gradient(90deg, #667eea, #764ba2);\n"
-                + "            border-radius: 2px;\n"
-                + "        }\n"
-                + "        .chart-wrapper {\n"
-                + "            position: relative;\n"
-                + "            padding: 20px;\n"
-                + "            background: #f8f9fa;\n"
-                + "            border-radius: 15px;\n"
-                + "            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);\n"
-                + "        }\n"
-                + "        canvas {\n"
-                + "            background-color: #ffffff;\n"
-                + "            border-radius: 10px;\n"
-                + "            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);\n"
-                + "        }\n"
-                + "        @media (max-width: 768px) {\n"
-                + "            .container {\n"
-                + "                padding: 25px;\n"
-                + "            }\n"
-                + "            h2 {\n"
-                + "                font-size: 24px;\n"
-                + "            }\n"
-                + "            .chart-wrapper {\n"
-                + "                padding: 15px;\n"
-                + "            }\n"
-                + "        }\n"
-                + "    </style>\n"
-                + "</head>\n"
-                + "<body>\n"
-                + "    <div class=\"container\">\n"
-                + "        <h2>Độ sáng tối ưu theo Gen</h2>\n"
-                + "        <div class=\"chart-wrapper\">\n"
-                + "            <canvas id=\"brightnessChart\"></canvas>\n"
-                + "        </div>\n"
-                + "    </div>\n"
-                + "    <script>\n"
-                + "        const data = " + jsonData + ";\n"
-                + "        const labels = data.map(d => d.gen);\n"
-                + "        const brightness = data.map(d => d.brightness);\n"
-                + "        const ctx = document.getElementById('brightnessChart').getContext('2d');\n"
-                + "        new Chart(ctx, {\n"
-                + "            type: 'line',\n"
-                + "            data: {\n"
-                + "                labels: labels,\n"
-                + "                datasets: [{\n"
-                + "                    label: 'Độ sáng',\n"
-                + "                    data: brightness,\n"
-                + "                    fill: true,\n"
-                + "                    backgroundColor: 'rgba(102, 126, 234, 0.1)',\n"
-                + "                    borderColor: 'rgb(102, 126, 234)',\n"
-                + "                    borderWidth: 3,\n"
-                + "                    tension: 0.4,\n"
-                + "                    pointRadius: 4,\n"
-                + "                    pointHoverRadius: 6,\n"
-                + "                    pointBackgroundColor: 'rgb(102, 126, 234)',\n"
-                + "                    pointBorderColor: '#fff',\n"
-                + "                    pointBorderWidth: 2,\n"
-                + "                    pointHoverBackgroundColor: 'rgb(118, 75, 162)',\n"
-                + "                    pointHoverBorderColor: '#fff'\n"
-                + "                }]\n"
-                + "            },\n"
-                + "            options: {\n"
-                + "                responsive: true,\n"
-                + "                maintainAspectRatio: true,\n"
-                + "                plugins: {\n"
-                + "                    legend: {\n"
-                + "                        display: true,\n"
-                + "                        labels: {\n"
-                + "                            font: { size: 14, weight: '600' },\n"
-                + "                            color: '#2c3e50',\n"
-                + "                            padding: 15\n"
-                + "                        }\n"
-                + "                    }\n"
-                + "                },\n"
-                + "                scales: {\n"
-                + "                    x: {\n"
-                + "                        title: {\n"
-                + "                            display: true,\n"
-                + "                            text: 'Gen',\n"
-                + "                            font: { size: 14, weight: '600' },\n"
-                + "                            color: '#2c3e50'\n"
-                + "                        },\n"
-                + "                        grid: { color: 'rgba(0, 0, 0, 0.05)' },\n"
-                + "                        ticks: { color: '#555' }\n"
-                + "                    },\n"
-                + "                    y: {\n"
-                + "                        title: {\n"
-                + "                            display: true,\n"
-                + "                            text: 'Độ sáng',\n"
-                + "                            font: { size: 14, weight: '600' },\n"
-                + "                            color: '#2c3e50'\n"
-                + "                        },\n"
-                + "                        grid: { color: 'rgba(0, 0, 0, 0.05)' },\n"
-                + "                        ticks: { color: '#555' }\n"
-                + "                    }\n"
-                + "                }\n"
-                + "            }\n"
-                + "        });\n"
-                + "    </script>\n"
-                + "</body>\n"
-                + "</html>";
+                + "<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'><title>Báo cáo Thuật toán Firefly</title>"
+                + "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>"
+                + "<script src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js'></script>"
+                + "<style>"
+                + "  body{font-family:'Segoe UI', sans-serif; background:#f4f4f9; padding:20px; display:flex; flex-direction:column; align-items:center;}"
+                + "  .container{display:flex; gap:20px; justify-content:center; flex-wrap:wrap; width: 100%;}"
+                + "  .box{background:white; padding:20px; width:45%; min-width:500px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1);}"
+                + "  h1{color:#2c3e50; margin-bottom:10px;}"
+                + "  h2{text-align:center; font-size:1.3em; color:#555; margin-bottom:15px; border-bottom: 2px solid #eee; padding-bottom:10px;}"
+                + "</style>"
+                + "</head><body>"
 
-        try (FileWriter writer = new FileWriter(path)) {
+                + "<h1>So sánh Hiệu quả Tối ưu hóa (Bubble Chart)</h1>"
+                + "<div class='container'>"
+                + "  <div class='box'><h2>Lúc Khởi tạo (Gen 0)</h2><canvas id='c1'></canvas></div>"
+                + "  <div class='box'><h2>Kết quả Cuối cùng (Gen Max)</h2><canvas id='c2'></canvas></div>"
+                + "</div>"
+
+                + "<script>"
+                + "  const rawData = " + jsonContent + ";"
+                + "  const budget = rawData.budget;"
+
+                // --- HÀM GỘP DỮ LIỆU (GROUPING) ---
+                // Nếu Cost và Time giống nhau -> Tăng biến 'count' lên
+                + "  function groupData(data) {"
+                + "     const map = new Map();"
+                + "     data.forEach(p => {"
+                // Làm tròn số liệu một chút để dễ gộp nhóm (Cost lấy nguyên, Time lấy 4 số lẻ)
+                + "         const key = Math.floor(p.cost) + '_' + p.time.toFixed(4);"
+                + "         if (!map.has(key)) {"
+                + "             map.set(key, { x: p.cost, y: p.time, isValid: p.isValid, count: 0 });"
+                + "         }"
+                + "         map.get(key).count++;"
+                + "     });"
+                + "     return Array.from(map.values());"
+                + "  }"
+
+                // --- HÀM TÁCH DỮ LIỆU SAU KHI GỘP ---
+                + "  function process(list) {"
+                + "     const grouped = groupData(list);"
+                + "     return {"
+                + "       valid: grouped.filter(p => p.isValid),"
+                + "       invalid: grouped.filter(p => !p.isValid)"
+                + "     };"
+                + "  }"
+
+                + "  const p1 = process(rawData.initial);"
+                + "  const p2 = process(rawData.finals);"
+
+                // --- HÀM VẼ BIỂU ĐỒ ---
+                + "  function draw(id, pData) {"
+                + "    new Chart(document.getElementById(id), {"
+                + "      type: 'scatter',"
+                + "      data: { datasets: ["
+                + "        { "
+                + "           label:'Hợp lệ', data:pData.valid, "
+                + "           backgroundColor:'rgba(46, 204, 113, 0.6)', "
+                + "           borderColor:'rgba(46, 204, 113, 1)', borderWidth: 1"
+                + "        },"
+                + "        { "
+                + "           label:'Vi phạm', data:pData.invalid, "
+                + "           backgroundColor:'rgba(231, 76, 60, 0.7)', "
+                + "           borderColor:'rgba(231, 76, 60, 1)', borderWidth: 2,"
+                + "           pointStyle:'cross'"
+                + "        }"
+                + "      ]},"
+                + "      options: {"
+                + "        elements: {"
+                + "           point: {"
+                // --- ĐÂY LÀ CHỖ QUYẾT ĐỊNH KÍCH THƯỚC ---
+                // Công thức: Bán kính = 5 + (số lượng trùng lặp * 1.5)
+                // Ví dụ: 1 con -> r=5. 10 con -> r=20.
+                + "              radius: function(context) {"
+                + "                 const val = context.raw;"
+                + "                 if (!val || !val.count) return 5;"
+                + "                 return 5 + (val.count - 1) * 2;"
+                + "              },"
+                + "              hoverRadius: function(context) {"
+                + "                 const val = context.raw;"
+                + "                 if (!val || !val.count) return 7;"
+                + "                 return 7 + (val.count - 1) * 2;"
+                + "              }"
+                + "           }"
+                + "        },"
+                + "        plugins: { "
+                + "           tooltip: { callbacks: { label: (ctx) => `SL: ${ctx.raw.count} | Cost: ${ctx.parsed.x.toLocaleString()} | Time: ${ctx.parsed.y.toFixed(2)}` } },"
+                + "           annotation: { annotations: { line1: { type:'line', xMin:budget, xMax:budget, borderColor:'rgb(255, 99, 132)', borderWidth:2, borderDash:[5,5], label: {display: true, content: 'Budget', position: 'start', backgroundColor: 'rgba(255, 99, 132, 0.8)'} } } } "
+                + "        },"
+                + "        scales: { "
+                + "           x: { title:{display:true, text:'Chi phí (VNĐ)'}, ticks: { callback: function(val) { return val.toLocaleString(); } } }, "
+                + "           y: { title:{display:true, text:'Thời gian (Giờ)'} } "
+                + "        }"
+                + "      }"
+                + "    });"
+                + "  }"
+
+                + "  draw('c1', p1); draw('c2', p2);"
+                + "</script></body></html>";
+
+        try (FileWriter writer = new FileWriter(HTML_FILE)) {
             writer.write(htmlContent);
+            System.out.println("--> [OK] Đã xuất biểu đồ HTML tại: " + HTML_FILE);
         }
-    }
 
-    /**
-     * Mở file HTML trên trình duyệt mặc định
-     */
-    public static void openHtml(String htmlPath) throws IOException {
-        File htmlFile = new File(htmlPath);
-        if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().browse(htmlFile.toURI());
-        } else {
-            System.out.println("Không hỗ trợ mở trình duyệt tự động. Mở file: " + htmlFile.getAbsolutePath());
+        File file = new File(HTML_FILE);
+        if (Desktop.isDesktopSupported() && file.exists()) {
+            Desktop.getDesktop().browse(file.toURI());
         }
-    }
-
-    /**
-     * Xuất JSON + HTML và mở trình duyệt
-     */
-    public static void exportAndOpen(List<GenData> bestOfGen) throws IOException {
-        String outputDir = "src/main/resources/output/";
-        new File(outputDir).mkdirs(); // tạo thư mục nếu chưa có
-
-        String jsonPath = outputDir + "firefly_best_gen.json";
-        String htmlPath = outputDir + "firefly_chart.html";
-
-        saveJson(bestOfGen, jsonPath);       // xuất JSON (tùy chọn)
-        saveHtml(bestOfGen, htmlPath);       // xuất HTML
-        openHtml(htmlPath);                  // mở trình duyệt
     }
 }

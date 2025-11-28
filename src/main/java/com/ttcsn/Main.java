@@ -9,7 +9,7 @@ import com.ttcsn.service.RoutingService;
 public class Main {
 	public static void main(String[] args) {
 		// ... (Phần load graph giữ nguyên) ...
-		String filePath = "src/main/resources/I_20N_80E.json";
+		String filePath = "src/main/resources/I_50N_200E.json";
 		GraphService graphService = new GraphService();
 		Graph graph = graphService.loadGraphFromJson(filePath);
 
