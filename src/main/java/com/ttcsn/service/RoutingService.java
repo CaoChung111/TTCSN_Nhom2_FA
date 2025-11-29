@@ -66,8 +66,8 @@ public class RoutingService {
 	}
 
 	public Route crossover(Route r1, Route r2) {
-		List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 sáng hơn
-		List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 kém hơn
+		List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 kém hơn
+		List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 sáng hơn
 
 		// Tìm các điểm chung (trừ đầu và cuối)
 		List<Node> commonNodes = new ArrayList<>();
@@ -78,21 +78,21 @@ public class RoutingService {
 			}
 		}
 
-		// Không có điểm chung => không lai ghép, r2 giữ nguyên
+		// Không có điểm chung => không lai ghép, r1 giữ nguyên
 		if (commonNodes.isEmpty()) {
-			return new Route(r2);
+			return new Route(r1);
 		}
 
 		// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
 		Node cutPoint = commonNodes.get(random.nextInt(commonNodes.size()));
-		//System.out.println("Điểm chung: " + cutPoint);
+		// System.out.println("Điểm chung: " + cutPoint);
 
 		int index1 = n1.indexOf(cutPoint); // r1
 		int index2 = n2.indexOf(cutPoint); // r2
 
 		// Tạo route mới: đầu từ r1 đến cutPoint, cuối từ r2 sau cutPoint
-        List<Node> newRouteNodes = new ArrayList<>(n1.subList(0, index1 + 1)); // phần đầu r1
-        if (index2 + 1 < n2.size()) {
+		List<Node> newRouteNodes = new ArrayList<>(n1.subList(0, index1 + 1)); // phần đầu r1
+		if (index2 + 1 < n2.size()) {
 			newRouteNodes.addAll(n2.subList(index2 + 1, n2.size())); // phần sau r2
 		}
 
@@ -106,15 +106,15 @@ public class RoutingService {
 			if (i < newRouteNodes.size() - 1) {
 				Node nextNode = newRouteNodes.get(i + 1);
 
-				// Tìm edge ưu tiên trong r1, fallback r2
-				edge = findEdgeBetween(r1, currentNode, nextNode);
+				// Tìm edge ưu tiên trong r2, fallback r1
+				edge = findEdgeBetween(r2, currentNode, nextNode);
 				if (edge == null) {
-					edge = findEdgeBetween(r2, currentNode, nextNode);
+					edge = findEdgeBetween(r1, currentNode, nextNode);
 				}
 
 				// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
 				if (edge == null) {
-					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r2");
+					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r1");
 					return mutate(r1);
 				}
 			}
@@ -205,7 +205,10 @@ public class RoutingService {
 
 		Node u = nodes.get(u_index);
 		Node v = nodes.get(v_index);
-        /* System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " + u_index + ") TỚI [" + v + "] (index " + v_index + ")"); */
+		/*
+		 * System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " +
+		 * u_index + ") TỚI [" + v + "] (index " + v_index + ")");
+		 */
 
 		Set<Node> existingNodes = new HashSet<>();
 		for (int i = 0; i < u_index; i++) {
@@ -221,7 +224,8 @@ public class RoutingService {
 		}
 		Route middleRoute = generateRandomRoute(u, v, existingNodes);
 		if (middleRoute == null || middleRoute.getEdges().isEmpty()) {
-            //	System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ nguyên.");
+			// System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ
+			// nguyên.");
 			return route;
 		}
 //		System.out.println("[MUTATE] --- Đoạn thay thế: " + middleRoute);

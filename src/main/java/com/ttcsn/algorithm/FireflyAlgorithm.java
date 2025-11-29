@@ -1,8 +1,7 @@
 package com.ttcsn.algorithm;
+
 import com.ttcsn.model.dto.*;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.google.gson.Gson;
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
@@ -21,15 +19,14 @@ public class FireflyAlgorithm {
 	private final Random random = new Random();
 	private final RoutingService routingService;
 	private final List<Firefly> population = new ArrayList<>();
-	List<GenData> bestOfGen = new ArrayList<>();
+	List<GenBrightness> bestOfGen = new ArrayList<>();
 
-	// --- CẤU HÌNH FORMAT BẢNG (ĐÃ CĂN CHỈNH) ---
-	// Gen(6) | Bright(12) | Cost(14) | Time(12) | Dist(12) | Route(102)
+	List<ComparisonPoint> initialPopulation = new ArrayList<>();
+	List<ComparisonPoint> finalPopulation = new ArrayList<>();
+
 	private static final String BORDER = "+------+------------+--------------+------------+------------+------------------------------------------------------------+";
 	private static final String TABLE_FORMAT = "| %-4d | %-10.5f | %-12.0f | %-10.2f | %-10.2f | %-58s |%n";
 	private static final String HEADER_FORMAT = "| %-4s | %-10s | %-12s | %-10s | %-10s | %-58s |%n";
-
-	private static final String WARNING_FORMAT = "| %-162s |%n";
 
 	public FireflyAlgorithm(RoutingService routingService) {
 		this.routingService = routingService;
@@ -58,9 +55,14 @@ public class FireflyAlgorithm {
 		}
 		System.out.println("Hoàn tất (" + population.size() + " cá thể).\n");
 
+		// --- LƯU QUẦN THỂ BAN ĐẦU (GEN 0) ---
+		for (Firefly f : population) {
+			Route r = f.getRoute();
+			initialPopulation.add(new ComparisonPoint(r.getTotalCost(), r.getTotalTime(), Constant.MAX_COST));
+		}
+
 		// --- 2. IN CHI TIẾT QUẦN THỂ BAN ĐẦU ---
 		System.out.println("--- DANH SÁCH QUẦN THỂ BAN ĐẦU ---");
-		// Header bảng quần thể ban đầu (Tái sử dụng style border cho đẹp)
 		System.out.println(
 				"+-----+------------+------------------------------------------------------------------------------------------------------+");
 		System.out.printf("| %-3s | %-10s | %-100s |%n", "ID", "ĐỘ SÁNG", "LỘ TRÌNH");
@@ -84,7 +86,6 @@ public class FireflyAlgorithm {
 		Firefly best = population.get(0);
 		int g = 0;
 
-		// Biến theo dõi sự trì trệ
 		int stagnationCount = 0;
 		double lastBestBrightness = -1.0;
 
@@ -111,16 +112,13 @@ public class FireflyAlgorithm {
 				}
 			}
 
-			// Sắp xếp lại quần thể
 			Collections.sort(population);
 
-			// Cập nhật Best
 			Firefly currentBest = population.get(0);
 			if (currentBest.getBrightness() > best.getBrightness()) {
 				best = currentBest;
 			}
 
-			// Kiểm tra Stagnation (Dùng sai số epsilon để so sánh double cho an toàn)
 			if (Math.abs(currentBest.getBrightness() - lastBestBrightness) < 0.000001) {
 				stagnationCount++;
 			} else {
@@ -128,12 +126,8 @@ public class FireflyAlgorithm {
 				lastBestBrightness = currentBest.getBrightness();
 			}
 
-			// Kích hoạt đột biến khi kẹt
 			int stagnationMax = Math.max(15, Constant.POPULATION_SIZE);
 			if (stagnationCount > stagnationMax) {
-//				System.out.printf(WARNING_FORMAT, ">> CẢNH BÁO: Kẹt " + stagnationMax
-//						+ " Gen liên tiếp! Kích hoạt đột biến diện rộng (Trừ Top 3)...");
-
 				for (int k = 2; k < population.size(); k++) {
 					Firefly f = population.get(k);
 					Route mutatedRoute = routingService.mutate(f.getRoute());
@@ -141,32 +135,35 @@ public class FireflyAlgorithm {
 					f.calculateBrightness();
 				}
 				stagnationCount = 0;
-				Collections.sort(population); // Sort lại ngay để đảm bảo gen sau đúng thứ tự
+				Collections.sort(population);
 			}
 
-			// --- IN KẾT QUẢ ---
 			Route r = best.getRoute();
 			System.out.printf(TABLE_FORMAT, g, best.getBrightness(), r.getTotalCost(), r.getTotalTime(),
 					r.getTotalDistance(), truncate(r.toString(), 57));
-			bestOfGen.add(new GenData(
-				    g,
-				    best.getBrightness(),
-				    r.getTotalCost(),
-				    r.getTotalTime(),
-				    r.getTotalDistance(),
-				    truncate(r.toString(), 57)
-				));
+			
+			bestOfGen.add(new GenBrightness(best.getBrightness()));
+			
 			g++;
 		}
 		System.out.println(BORDER);
-		
-		// sau khi đã điền bestOfGen
-		try {
-            FireflyOutput.exportAndOpen(bestOfGen);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
+		// --- LƯU QUẦN THỂ CUỐI CÙNG (GEN MAX) ---
+		for (Firefly f : population) {
+			Route r = f.getRoute();
+			finalPopulation.add(new ComparisonPoint(r.getTotalCost(), r.getTotalTime(), Constant.MAX_COST));
+		}
+
+		// --- XUẤT TẤT CẢ BIỂU ĐỒ ---
+		try {
+			StabilityTracker.addRun(best.getRoute().toString(), best.getBrightness());
+			StabilityTracker.exportStatsJson();
+			FireflyOutput.exportAll(initialPopulation, finalPopulation, bestOfGen);
+			System.out.println("\n✅ Đã xuất báo cáo thành công!");
+		} catch (IOException e) {
+			System.err.println("❌ Lỗi khi xuất báo cáo: " + e.getMessage());
+			e.printStackTrace();
+		}
 
 		return best.getRoute();
 	}
