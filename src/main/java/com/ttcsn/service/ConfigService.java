@@ -14,11 +14,11 @@ public class ConfigService {
 	public ConfigService() {
 		// Bộ 1: 11 đỉnh 22 cạnh
 		profiles.add(new DatasetProfile("Map 11 Đỉnh (I_11N_22E)", "src/main/resources/I_11N_22E.json", 10, 30, 100000,
-				0.4, 0.5, "A", "T", 7.0));
+				0.3, 0.5, "A", "T", 7.0));
 
 		// Bộ 2: 20 đỉnh 80 cạnh
 		profiles.add(new DatasetProfile("Map 20 Đỉnh (I_20N_80E)", "src/main/resources/I_20N_80E.json", 20, 40, 150000,
-				0.4, 0.5, "A", "T", 6.5));
+				0.3, 0.5, "A", "T", 6.5));
 
 		// Bộ 3: 50 đỉnh 200 cạnh
 		profiles.add(new DatasetProfile("Map 50 Đỉnh (I_50N_200E)", "src/main/resources/I_50N_200E.json", 40, 80,
@@ -30,7 +30,7 @@ public class ConfigService {
 
 		// Bộ 5: 200 đỉnh 2000 cạnh
 		profiles.add(new DatasetProfile("Map 200 Đỉnh (I_200N_1000E)", "src/main/resources/I_200N_1000E.json", 100, 200,
-				300000, 0.5, 1, "Trạm 1", "Trạm 200", 18.0));
+				300000, 0.6, 1, "Trạm 1", "Trạm 200", 18.0));
 	}
 
 	public void runMenu() {
