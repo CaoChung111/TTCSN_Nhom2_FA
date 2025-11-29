@@ -12,17 +12,25 @@ public class ConfigService {
 	private final List<DatasetProfile> profiles = new ArrayList<>();
 
 	public ConfigService() {
-		// --- CẬP NHẬT LẠI DANH SÁCH PROFILE (Thêm giờ khởi hành vào cuối) ---
-
-		// Bộ 1: 50 đỉnh (Giờ mặc định 7.0)
+		// Bộ 1: 11 đỉnh 22 cạnh
 		profiles.add(new DatasetProfile("Map 11 Đỉnh (I_11N_22E)", "src/main/resources/I_11N_22E.json", 10, 30, 100000,
-				0.4, "A", "T", 7.0 // <--- Đi lúc 7h sáng
-		));
+				0.4, 0.5, "A", "T", 7.0));
 
-		// Bộ 2: 100 đỉnh (Giờ mặc định 6.5)
-		profiles.add(new DatasetProfile("Map 20 Đỉnh (I_20N_80E)", "src/main/resources/I_20N_80E.json", 20, 40, 200000,
-				0.4, "A", "T", 6.5 // <--- Đi sớm hơn lúc 6h30
-		));
+		// Bộ 2: 20 đỉnh 80 cạnh
+		profiles.add(new DatasetProfile("Map 20 Đỉnh (I_20N_80E)", "src/main/resources/I_20N_80E.json", 20, 40, 150000,
+				0.4, 0.5, "A", "T", 6.5));
+
+		// Bộ 3: 50 đỉnh 200 cạnh
+		profiles.add(new DatasetProfile("Map 50 Đỉnh (I_50N_200E)", "src/main/resources/I_50N_200E.json", 40, 80,
+				150000, 0.5, 0.5, "Trạm 1", "Trạm 50", 11.5));
+
+		// Bộ 4: 100 đỉnh 800 cạnh
+		profiles.add(new DatasetProfile("Map 100 Đỉnh (I_100N_800E)", "src/main/resources/I_100N_800E.json", 80, 100,
+				200000, 0.5, 1, "Trạm 1", "Trạm 100", 17.5));
+
+		// Bộ 5: 200 đỉnh 2000 cạnh
+		profiles.add(new DatasetProfile("Map 200 Đỉnh (I_200N_1000E)", "src/main/resources/I_200N_1000E.json", 100, 200,
+				300000, 0.5, 1, "Trạm 1", "Trạm 200", 18.0));
 	}
 
 	public void runMenu() {
@@ -43,21 +51,19 @@ public class ConfigService {
 
 		DatasetProfile selected = profiles.get(choice - 1);
 
-		// Nạp các tham số kỹ thuật ngầm (Pop, Gen, Alpha...)
+		// Nạp các tham số kỹ thuật mặc định
 		applyTechnicalParams(selected);
 
 		System.out.println("\n------------------------------------------");
 		System.out.println(">> Đã nạp cấu hình: " + selected.name);
 		System.out.println("------------------------------------------");
 
-		// 2. Nhập các thông số người dùng (Có thể Enter để Skip)
+		// 2. Nhập các thông số người dùng
 		System.out.println("CẤU HÌNH YÊU CẦU (Ấn Enter để dùng mặc định):");
 
-		// Nhập Điểm
+		// Nhập
 		Constant.START_POINT = inputString("Điểm bắt đầu", selected.defaultStart);
 		Constant.END_POINT = inputString("Điểm kết thúc ", selected.defaultEnd);
-
-		// Nhập Thời gian & Tiền (Mặc định lấy từ Profile)
 		Constant.TIME_START = inputDouble("Giờ khởi hành (h)", selected.defaultStartTime);
 		Constant.MAX_COST = inputDouble("Ngân sách tối đa (VNĐ)", selected.maxCostBudget);
 
@@ -73,11 +79,11 @@ public class ConfigService {
 		Constant.POPULATION_SIZE = p.populationSize;
 		Constant.MAX_GENERATION = p.maxGeneration;
 		Constant.ALPHA = p.alpha;
+		Constant.GAMMA = p.gamma;
 
 	}
 
-	// --- CÁC HÀM NHẬP LIỆU (Giữ nguyên logic Enter) ---
-
+	// --- CÁC HÀM NHẬP LIỆU ---
 	private int inputInt(String label, int defaultValue) {
 		System.out.printf("%-30s [%d]: ", label, defaultValue);
 		try {

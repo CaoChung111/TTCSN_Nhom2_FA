@@ -11,14 +11,12 @@ import com.ttcsn.config.Constant;
 import com.ttcsn.model.Route;
 
 public class ReportService {
-
 	private static final String OUTPUT_DIR = "src/main/resources/output/";
 	private static final String REPORT_FILE = OUTPUT_DIR + "firefly_final_report.txt";
 
 	public void saveFinalReport(Route bestRoute, long executionTime) {
 		// 1. Tạo thư mục nếu chưa có
 		new File(OUTPUT_DIR).mkdirs();
-
 		StringBuilder sb = new StringBuilder();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 

@@ -106,7 +106,7 @@ public class RoutingService {
 			if (i < newRouteNodes.size() - 1) {
 				Node nextNode = newRouteNodes.get(i + 1);
 
-				// Tìm edge ưu tiên trong r1, fallback r2
+				// Tìm edge ưu tiên trong r2, fallback r1
 				edge = findEdgeBetween(r1, currentNode, nextNode);
 				if (edge == null) {
 					edge = findEdgeBetween(r2, currentNode, nextNode);
