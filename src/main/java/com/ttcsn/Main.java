@@ -15,23 +15,21 @@ public class Main {
 		System.out.println(">>> KHỞI ĐỘNG ỨNG DỤNG TÌM ĐƯỜNG FIREFLY...\n");
 
 		try {
-			// BƯỚC 1: CẤU HÌNH (Đã có try-catch bên trong hàm nhập liệu)
+			// BƯỚC 1: CẤU HÌNH
 			ConfigService config = new ConfigService();
 			GraphService loadGraphJson = new GraphService();
 			config.runMenu();
 
 			// BƯỚC 2: LOAD DỮ LIỆU ĐỒ THỊ
-			// Cần try-catch ở đây phòng trường hợp file json bị xóa hoặc sai đường dẫn
 			System.out.println(">> Đang tải dữ liệu đồ thị từ: " + Constant.GRAPH_FILE_PATH);
 			Graph graph = null;
-
 			try {
 				graph = loadGraphJson.loadGraphFromJson(Constant.GRAPH_FILE_PATH);
 			} catch (Exception e) {
 				System.err.println("[LỖI] Không đọc được file dữ liệu!");
 				System.err.println("Chi tiết: " + e.getMessage());
 				System.out.println("Vui lòng kiểm tra lại đường dẫn file trong DatasetProfile.");
-				return; // Dừng chương trình ngay
+				return;
 			}
 
 			if (graph == null) {
@@ -40,11 +38,10 @@ public class Main {
 			}
 			System.out.println("--> [OK] Tải thành công file dữ liệu\n");
 
-			// BƯỚC 3: KHỞI TẠO SERVICE
+			// BƯỚC 3: KHỞI TẠO
 			RoutingService routingService = new RoutingService();
 			routingService.setGraph(graph);
 
-			// Kiểm tra điểm đầu/cuối có tồn tại trong đồ thị không
 			if (routingService.getNode(Constant.START_POINT) == null
 					|| routingService.getNode(Constant.END_POINT) == null) {
 				System.err.println("[LỖI] Điểm bắt đầu hoặc kết thúc không tồn tại trong bản đồ!");
@@ -66,10 +63,10 @@ public class Main {
 			reportService.saveFinalReport(bestRoute, duration);
 
 		} catch (Exception e) {
-			// Catch tất cả các lỗi không lường trước khác (NullPointer, OutOfMemory...)
+			// Catch tất cả các lỗi
 			System.err.println("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			System.err.println("ĐÃ XẢY RA LỖI KHÔNG MONG MUỐN:");
-			e.printStackTrace(); // In vết lỗi để debug
+			e.printStackTrace();
 			System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 	}

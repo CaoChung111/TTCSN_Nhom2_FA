@@ -14,7 +14,7 @@
   ],
   "edges": [
       { "fromId": 1, "toId": 2, "cost": 5000, "distance": 5, "speedLimit": 50, "trafficLights": 1, "avgWaitTime": 15, "rushHourFactor": 1.1 },
-      
+     
       { "fromId": 1, "toId": 8, "cost": 10000, "distance": 2, "speedLimit": 60, "trafficLights": 2, "avgWaitTime": 20, "rushHourFactor": 1.2 },
       
       { "fromId": 1, "toId": 5, "cost": 7000, "distance": 6, "speedLimit": 40, "trafficLights": 3, "avgWaitTime": 30, "rushHourFactor": 1.5 },

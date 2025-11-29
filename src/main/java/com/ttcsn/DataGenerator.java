@@ -7,8 +7,8 @@ import java.util.Random;
 public class DataGenerator {
 
 	// Cấu hình số lượng mong muốn
-	private static final int NUM_NODES = 50;
-	private static final int NUM_EDGES = 200;
+	private static final int NUM_NODES = 200;
+	private static final int NUM_EDGES = 1000;
 	private static final String FILE_PATH = "src/main/resources/I_" + NUM_NODES + "N_" + NUM_EDGES + "E.json";
 
 	public static void main(String[] args) {
@@ -41,13 +41,11 @@ public class DataGenerator {
 			int speedLimit = speeds[rand.nextInt(speeds.length)];
 
 			// Cost tính sơ bộ theo quãng đường + biến động ngẫu nhiên
-			double rawCost = distance * 2000 + rand.nextInt(5000);
-			// Làm tròn cost về hàng nghìn (ví dụ 25000)
-			int cost = (int) (Math.round(rawCost / 1000.0) * 1000);
+			int cost = distance * 1500 + rand.nextInt(5) * 1000;
 
 			int trafficLights = rand.nextInt(6); // 0 - 5 đèn
 			int avgWaitTime = trafficLights * (10 + rand.nextInt(20)); // Mỗi đèn chờ 10-30s
-			double rushHourFactor = 1.0 + (rand.nextInt(15) / 10.0); // 1.0 - 2.5
+			double rushHourFactor = 1.0 + (rand.nextInt(10) / 10.0); // 1.0 - 2.0
 
 			json.append("    {\n");
 			json.append(String.format("      \"edgeId\": \"e%d\",\n", i));
@@ -60,7 +58,6 @@ public class DataGenerator {
 			json.append(String.format("      \"avgWaitTime\": %d,\n", avgWaitTime));
 			json.append(String.format("      \"rushHourFactor\": %.1f\n", rushHourFactor));
 			json.append("    }");
-
 			if (i < NUM_EDGES)
 				json.append(",\n");
 		}

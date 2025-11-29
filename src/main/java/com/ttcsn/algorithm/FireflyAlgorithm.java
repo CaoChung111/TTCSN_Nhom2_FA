@@ -32,7 +32,7 @@ public class FireflyAlgorithm {
 	public Route run() {
 		System.out.println("=== BẮT ĐẦU THUẬT TOÁN FIREFLY ===");
 		Set<Route> existRoute = new HashSet<>();
-		int attempts = 0, maxAttempts = Constant.POPULATION_SIZE * 4;
+		int attempts = 0, maxAttempts = Constant.POPULATION_SIZE * 10;
 		Node start = routingService.getNode(Constant.START_POINT);
 		Node end = routingService.getNode(Constant.END_POINT);
 		if (start == null || end == null)
@@ -43,7 +43,7 @@ public class FireflyAlgorithm {
 		while (population.size() < Constant.POPULATION_SIZE && attempts < maxAttempts) {
 			attempts++;
 			Route route = routingService.generateRandomRoute(start, end);
-			if (route != null && (!existRoute.contains(route) || attempts > Constant.POPULATION_SIZE * 3)) {
+			if (route != null && (!existRoute.contains(route) || attempts > Constant.POPULATION_SIZE * 8)) {
 				Firefly firefly = new Firefly(route);
 				firefly.calculateBrightness();
 				population.add(firefly);
@@ -83,6 +83,8 @@ public class FireflyAlgorithm {
 		double lastBestBrightness = -1.0;
 
 		while (g < Constant.MAX_GENERATION) {
+//			double progress = (double) g / Constant.MAX_GENERATION;
+//			Constant.GAMMA = 0.1 + (2.0 - 0.1) * progress;
 			for (int i = 0; i < population.size(); i++) {
 				for (int j = 0; j < population.size(); j++) {
 					Firefly fi = population.get(i);
