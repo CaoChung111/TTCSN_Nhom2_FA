@@ -1,25 +1,25 @@
 ==================================================
           BÁO CÁO KẾT QUẢ TỐI ƯU HÓA              
 ==================================================
-Ngày chạy: 2025/11/29 20:54:45
+Ngày chạy: 2025/11/29 21:49:44
 
 --- 1. CẤU HÌNH ---
-Bộ dữ liệu:    src/main/resources/I_200N_1000E.json
-Lộ trình:      Trạm 1 -> Trạm 200
-Giờ khởi hành: 18.0h
-Ngân sách:     300,000 VNĐ
-Số đom đóm:    100
-Số thế hệ:     200
-Tham số:       Alpha=0.50, Gamma=1.00, Beta0=1.00
+Bộ dữ liệu:    src/main/resources/I_11N_22E.json
+Lộ trình:      A -> T
+Giờ khởi hành: 7.0h
+Ngân sách:     100,000 VNĐ
+Số đom đóm:    10
+Số thế hệ:     30
+Tham số:       Alpha=0.40, Gamma=0.50, Beta0=1.00
 
 --- 2. KẾT QUẢ TỐI ƯU NHẤT ---
-Tổng Chi phí:  130,500 VNĐ
-Tổng Thời gian:1.53 giờ
-Tổng Quãng đường: 81.00 km
+Tổng Chi phí:  40,000 VNĐ
+Tổng Thời gian:0.19 giờ
+Tổng Quãng đường: 8.00 km
 Chi tiết lộ trình:
-  Trạm 1 -> Trạm 98 -> Trạm 122 -> Trạm 152 -> Trạm 82 -> Trạm 200
+  A -> M -> N -> P -> T
 >> TRẠNG THÁI: [HỢP LỆ] (Thỏa mãn ngân sách)
 
 --- 3. HIỆU NĂNG ---
-Thời gian thực thi: 5011 ms
+Thời gian thực thi: 989 ms
 ==================================================

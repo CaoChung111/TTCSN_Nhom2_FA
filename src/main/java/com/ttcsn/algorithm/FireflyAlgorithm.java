@@ -1,5 +1,6 @@
 package com.ttcsn.algorithm;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,12 +11,18 @@ import java.util.Set;
 import com.ttcsn.config.Constant;
 import com.ttcsn.model.Node;
 import com.ttcsn.model.Route;
+import com.ttcsn.model.dto.ComparisonPoint;
+import com.ttcsn.model.dto.GenBrightness;
 import com.ttcsn.service.RoutingService;
 
 public class FireflyAlgorithm {
 	private final Random random = new Random();
 	private final RoutingService routingService;
 	private final List<Firefly> population = new ArrayList<>();
+	
+	List<GenBrightness> bestOfGen = new ArrayList<>();
+	List<ComparisonPoint> initialPopulation = new ArrayList<>();
+	List<ComparisonPoint> finalPopulation = new ArrayList<>();
 
 	// --- CẤU HÌNH FORMAT BẢNG (ĐÃ CĂN CHỈNH) ---
 	// Gen(6) | Bright(12) | Cost(14) | Time(12) | Dist(12) | Route(102)
@@ -51,6 +58,13 @@ public class FireflyAlgorithm {
 			}
 		}
 		System.out.println("Hoàn tất (" + population.size() + " cá thể).\n");
+		
+		
+		// --- LƯU QUẦN THỂ BAN ĐẦU (GEN 0) ---
+		for (Firefly f : population) {
+			Route r = f.getRoute();
+			initialPopulation.add(new ComparisonPoint(r.getTotalCost(), r.getTotalTime(), Constant.MAX_COST));
+		}
 
 		// --- 2. IN CHI TIẾT QUẦN THỂ BAN ĐẦU ---
 		System.out.println("--- DANH SÁCH QUẦN THỂ BAN ĐẦU ---");
@@ -144,10 +158,28 @@ public class FireflyAlgorithm {
 			Route r = best.getRoute();
 			System.out.printf(TABLE_FORMAT, g, best.getBrightness(), r.getTotalCost(), r.getTotalTime(),
 					r.getTotalDistance(), truncate(r.toString(), 57));
+			bestOfGen.add(new GenBrightness(best.getBrightness()));
 
 			g++;
 		}
 		System.out.println(BORDER);
+		
+		// --- LƯU QUẦN THỂ CUỐI CÙNG (GEN MAX) ---
+		for (Firefly f : population) {
+			Route r = f.getRoute();
+			finalPopulation.add(new ComparisonPoint(r.getTotalCost(), r.getTotalTime(), Constant.MAX_COST));
+		}
+
+		// --- XUẤT TẤT CẢ BIỂU ĐỒ ---
+		try {
+			StabilityTracker.addRun(best.getRoute().toString(), best.getBrightness());
+			StabilityTracker.exportStatsJson();
+			FireflyOutput.exportAll(initialPopulation, finalPopulation, bestOfGen);
+			System.out.println("\n✅ Đã xuất báo cáo thành công!");
+		} catch (IOException e) {
+			System.err.println("❌ Lỗi khi xuất báo cáo: " + e.getMessage());
+			e.printStackTrace();
+		}	
 
 		return best.getRoute();
 	}
