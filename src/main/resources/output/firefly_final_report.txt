@@ -1,7 +1,7 @@
 ==================================================
           BÁO CÁO KẾT QUẢ TỐI ƯU HÓA              
 ==================================================
-Ngày chạy: 2025/11/29 20:42:37
+Ngày chạy: 2025/11/29 20:54:45
 
 --- 1. CẤU HÌNH ---
 Bộ dữ liệu:    src/main/resources/I_200N_1000E.json
@@ -13,13 +13,13 @@ Số thế hệ:     200
 Tham số:       Alpha=0.50, Gamma=1.00, Beta0=1.00
 
 --- 2. KẾT QUẢ TỐI ƯU NHẤT ---
-Tổng Chi phí:  76,500 VNĐ
-Tổng Thời gian:1.20 giờ
-Tổng Quãng đường: 41.00 km
+Tổng Chi phí:  130,500 VNĐ
+Tổng Thời gian:1.53 giờ
+Tổng Quãng đường: 81.00 km
 Chi tiết lộ trình:
-  Trạm 1 -> Trạm 98 -> Trạm 132 -> Trạm 157 -> Trạm 74 -> Trạm 178 -> Trạm 200
+  Trạm 1 -> Trạm 98 -> Trạm 122 -> Trạm 152 -> Trạm 82 -> Trạm 200
 >> TRẠNG THÁI: [HỢP LỆ] (Thỏa mãn ngân sách)
 
 --- 3. HIỆU NĂNG ---
-Thời gian thực thi: 5261 ms
+Thời gian thực thi: 5011 ms
 ==================================================
