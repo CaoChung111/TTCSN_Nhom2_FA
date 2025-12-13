@@ -7,8 +7,8 @@ import java.util.Random;
 public class DataGenerator {
 
 	// Cấu hình số lượng mong muốn
-	private static final int NUM_NODES = 200;
-	private static final int NUM_EDGES = 1000;
+	private static final int NUM_NODES = 0;
+	private static final int NUM_EDGES = 0;
 	private static final String FILE_PATH = "src/main/resources/I_" + NUM_NODES + "N_" + NUM_EDGES + "E.json";
 
 	public static void main(String[] args) {
@@ -41,7 +41,7 @@ public class DataGenerator {
 			int speedLimit = speeds[rand.nextInt(speeds.length)];
 
 			// Cost tính sơ bộ theo quãng đường + biến động ngẫu nhiên
-			int cost = distance * 1500 + rand.nextInt(5) * 1000;
+			int cost = distance * rand.nextInt(3) * 1000 + rand.nextInt(5) * 1000;
 
 			int trafficLights = rand.nextInt(6); // 0 - 5 đèn
 			int avgWaitTime = trafficLights * (10 + rand.nextInt(20)); // Mỗi đèn chờ 10-30s

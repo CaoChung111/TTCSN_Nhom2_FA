@@ -12,25 +12,51 @@ public class ConfigService {
 	private final List<DatasetProfile> profiles = new ArrayList<>();
 
 	public ConfigService() {
-		// Bộ 1: 11 đỉnh 22 cạnh
-		profiles.add(new DatasetProfile("Map 11 Đỉnh (I_11N_22E)", "src/main/resources/I_11N_22E.json", 10, 30, 100000,
-				0.3, 0.5, "A", "T", 7.0));
+		// --- CẤU HÌNH 10 BỘ DỮ LIỆU
 
-		// Bộ 2: 20 đỉnh 80 cạnh
-		profiles.add(new DatasetProfile("Map 20 Đỉnh (I_20N_80E)", "src/main/resources/I_20N_80E.json", 20, 40, 150000,
-				0.3, 0.5, "A", "T", 6.5));
+		// 1. Map 11 (Small)
+		profiles.add(new DatasetProfile("1. Map 11 (Small)", "src/main/resources/I_11N_22E.json", 10, // Pop
+				30, // Gen
+				100000, // Budget
+				0.2, // Alpha
+				0.1, // Gamma
+				"A", "T", 7.0));
 
-		// Bộ 3: 50 đỉnh 200 cạnh
-		profiles.add(new DatasetProfile("Map 50 Đỉnh (I_50N_200E)", "src/main/resources/I_50N_200E.json", 40, 80,
-				150000, 0.5, 0.5, "Trạm 1", "Trạm 50", 11.5));
+		// 2. Map 15 (Small)
+		profiles.add(new DatasetProfile("2. Map 15 (Small)", "src/main/resources/I_15N_50E.json", 15, 40, 100000, 0.3,
+				0.1, "A", "T", 7.0));
 
-		// Bộ 4: 100 đỉnh 800 cạnh
-		profiles.add(new DatasetProfile("Map 100 Đỉnh (I_100N_800E)", "src/main/resources/I_100N_800E.json", 80, 100,
-				200000, 0.5, 1, "Trạm 1", "Trạm 100", 17.5));
+		// 3. Map 20 (Small)
+		profiles.add(new DatasetProfile("3. Map 20 (Small)", "src/main/resources/I_20N_80E.json", 20, 50, 150000, 0.3,
+				0.5, "A", "T", 12));
 
-		// Bộ 5: 200 đỉnh 2000 cạnh
-		profiles.add(new DatasetProfile("Map 200 Đỉnh (I_200N_1000E)", "src/main/resources/I_200N_1000E.json", 100, 200,
-				300000, 0.6, 1, "Trạm 1", "Trạm 200", 18.0));
+		// 4. Map 30 (Medium)
+		profiles.add(new DatasetProfile("4. Map 30 (Medium)", "src/main/resources/I_30N_180E.json", 50, 80, 150000, 0.4,
+				0.5, "Trạm 1", "Trạm 30", 7.5));
+
+		// 5. Map 50 (Medium)
+		profiles.add(new DatasetProfile("5. Map 50 (Medium)", "src/main/resources/I_50N_200E.json", 40, 100, 150000,
+				0.5, 0.5, "Trạm 1", "Trạm 50", 11.5));
+
+		// 6. Map 50 (Dense - Mật độ cao)
+		profiles.add(new DatasetProfile("6. Map 50 (Dense)", "src/main/resources/I_50N_500E.json", 75, 130, 150000, 0.6,
+				0.8, "Trạm 1", "Trạm 50", 8.0));
+
+		// 7. Map 75 (Large)
+		profiles.add(new DatasetProfile("7. Map 75 (Large)", "src/main/resources/I_75N_350E.json", 60, 120, 150000, 0.5,
+				0.8, "Trạm 1", "Trạm 75", 8.0));
+
+		// 8. Map 100 (Large)
+		profiles.add(new DatasetProfile("8. Map 100 (Large)", "src/main/resources/I_100N_800E.json", 70, 130, 150000,
+				0.5, 1.0, "Trạm 1", "Trạm 100", 9.0));
+
+		// 9. Map 100 (Tight - Ngân sách thấp)
+		profiles.add(new DatasetProfile("9. Map 100 (Tight)", "src/main/resources/I_100N_800E_Tight.json", 80, 150,
+				80000, 0.7, 1.0, "Trạm 1", "Trạm 100", 17.0));
+
+		// 10. Map 200 (Max)
+		profiles.add(new DatasetProfile("10. Map 200 (Max)", "src/main/resources/I_200N_1000E.json", 100, 150, 300000,
+				0.6, 1.0, "Trạm 1", "Trạm 200", 6.0));
 	}
 
 	public void runMenu() {

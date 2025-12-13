@@ -5378,7 +5378,7 @@
       "toId": 98,
       "distance": 7,
       "speedLimit": 100,
-      "cost": 11500,
+      "cost": 30500,
       "trafficLights": 5,
       "avgWaitTime": 55,
       "rushHourFactor": 1.3
@@ -10172,9 +10172,9 @@
       "edgeId": "e907",
       "fromId": 98,
       "toId": 122,
-      "distance": 17,
-      "speedLimit": 60,
-      "cost": 28500,
+      "distance": 25,
+      "speedLimit": 40,
+      "cost": 53500,
       "trafficLights": 4,
       "avgWaitTime": 56,
       "rushHourFactor": 1.0
