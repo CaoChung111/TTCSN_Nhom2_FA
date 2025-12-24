@@ -2,8 +2,13 @@ package com.ttcsn.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 
@@ -244,4 +249,92 @@ public class RoutingService {
 		return newRoute;
 	}
 
+	public Route runDijkstra(Node startNode, Node endNode, double globalStartTime) {
+		// Lưu thời gian ngắn nhất để đến được mỗi Node
+		Map<Integer, Double> minTimeMap = new HashMap<>();
+		// Lưu vết đường đi
+		Map<Integer, Edge> pathTrace = new HashMap<>();
+
+		// PriorityQueue sắp xếp Node theo thời gian tích lũy tăng dần
+		PriorityQueue<NodeTimeWrapper> pq = new PriorityQueue<>(Comparator.comparingDouble(nt -> nt.accumulatedTime));
+
+		// Khởi tạo Node
+		for (Node node : graph.getNodes()) {
+			minTimeMap.put(node.getId(), Double.MAX_VALUE);
+		}
+		minTimeMap.put(startNode.getId(), 0.0);
+
+		// Bắt đầu từ StartNode với thời gian là 0
+		pq.add(new NodeTimeWrapper(startNode, 0.0));
+
+		while (!pq.isEmpty()) {
+			NodeTimeWrapper current = pq.poll();
+			Node u = current.node;
+			double timeElapsedSoFar = current.accumulatedTime;
+			if (timeElapsedSoFar > minTimeMap.get(u.getId()))
+				continue;
+			// Điều kiện dừng
+			if (u.equals(endNode))
+				break;
+			// Duyệt các cạnh kề
+			List<Edge> neighbors = graph.getNeighbors(u);
+			if (neighbors != null) {
+				for (Edge edge : neighbors) {
+					Node v = edge.getTo();
+
+					// Tính thời gian
+					double actualCurrentTime = globalStartTime + timeElapsedSoFar;
+					double travelTimeOnEdge = edge.calculateTravelTime(actualCurrentTime);
+					double newTotalTime = timeElapsedSoFar + travelTimeOnEdge;
+
+					// Nếu tìm được đường nhanh hơn đến v
+					if (newTotalTime < minTimeMap.get(v.getId())) {
+						minTimeMap.put(v.getId(), newTotalTime);
+						pathTrace.put(v.getId(), edge); // Lưu vết
+						pq.add(new NodeTimeWrapper(v, newTotalTime));
+					}
+				}
+			}
+		}
+
+		return buildRouteFromTrace(startNode, endNode, pathTrace);
+	}
+
+	// Hàm truy vết ngược từ Đích về Xuất phát để tạo đối tượng Route
+	private Route buildRouteFromTrace(Node start, Node end, Map<Integer, Edge> pathTrace) {
+		if (!pathTrace.containsKey(end.getId())) {
+			return null;
+		}
+
+		LinkedList<Edge> pathEdges = new LinkedList<>();
+		Node curr = end;
+
+		// Truy vết ngược
+		while (!curr.equals(start)) {
+			Edge edge = pathTrace.get(curr.getId());
+			if (edge == null)
+				break;
+			pathEdges.addFirst(edge);
+			curr = edge.getFrom();
+		}
+
+		// Tạo đối tượng Route
+		Route route = new Route();
+		route.addStep(start, null);
+		for (Edge e : pathEdges) {
+			route.addStep(e.getTo(), e);
+		}
+		return route;
+	}
+
+	// Class hỗ trợ PriorityQueue
+	private static class NodeTimeWrapper {
+		Node node;
+		double accumulatedTime; // Thời gian tích lũy từ điểm xuất phát
+
+		public NodeTimeWrapper(Node node, double accumulatedTime) {
+			this.node = node;
+			this.accumulatedTime = accumulatedTime;
+		}
+	}
 }

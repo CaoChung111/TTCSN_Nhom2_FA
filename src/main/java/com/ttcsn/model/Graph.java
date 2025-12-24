@@ -34,6 +34,10 @@ public class Graph {
 		return nodes.get(id);
 	}
 
+	public List<Node> getNodes() {
+		return new ArrayList<>(nodes.values());
+	}
+
 	public List<Edge> getNeighbors(Node node) {
 		List<Edge> list = edges.get(node.getId());
 		// Nếu null (không tìm thấy hoặc chưa init) -> trả về list rỗng
