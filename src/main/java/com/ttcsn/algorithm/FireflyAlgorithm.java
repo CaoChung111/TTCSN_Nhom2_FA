@@ -19,9 +19,13 @@ public class FireflyAlgorithm {
 
 	// --- CẤU HÌNH FORMAT BẢNG (ĐÃ CĂN CHỈNH) ---
 	// Gen(6) | Bright(12) | Cost(14) | Time(12) | Dist(12) | Route(102)
-	private static final String BORDER = "+------+------------+--------------+------------+------------+------------------------------------------------------------+";
-	private static final String TABLE_FORMAT = "| %-4d | %-10.5f | %-12.0f | %-10.2f | %-10.2f | %-58s |%n";
-	private static final String HEADER_FORMAT = "| %-4s | %-10s | %-12s | %-10s | %-10s | %-58s |%n";
+	private static final String BORDER =
+	"+------+------------+--------------+------------+------------+------------+------------------------------------------------------------+";
+	private static final String TABLE_FORMAT =
+	"| %-4d | %-10.5f | %-12.0f | %-10.2f | %-10.2f | %-10.2f | %-58s |%n";
+	private static final String HEADER_FORMAT =
+	"| %-4s | %-10s | %-12s | %-10s | %-10s | %-10s | %-58s |%n";
+
 
 	private static final String WARNING_FORMAT = "| %-162s |%n";
 
@@ -42,13 +46,17 @@ public class FireflyAlgorithm {
 		System.out.print("Đang khởi tạo quần thể... ");
 		while (population.size() < Constant.POPULATION_SIZE && attempts < maxAttempts) {
 			attempts++;
-			Route route = routingService.generateRandomRoute(start, end);
-			if (route != null && (!existRoute.contains(route) || attempts > Constant.POPULATION_SIZE * 8)) {
-				Firefly firefly = new Firefly(route);
-				firefly.calculateBrightness();
-				population.add(firefly);
-				existRoute.add(route);
-			}
+			try {
+				Route route = routingService.generateRandomRoute(start, end);
+				if (route != null && (!existRoute.contains(route) || attempts > Constant.POPULATION_SIZE * 8)) {
+					Firefly firefly = new Firefly(route);
+					firefly.calculateBrightness();
+					population.add(firefly);
+					existRoute.add(route);
+				}
+			}catch (Exception e) {
+		        System.err.println("[INIT ERROR] generateRandomRoute failed: " + e.getMessage());
+		    }
 		}
 		System.out.println("Hoàn tất (" + population.size() + " cá thể).\n");
 
@@ -71,7 +79,8 @@ public class FireflyAlgorithm {
 		// --- 3. IN HEADER BẢNG TIẾN TRÌNH ---
 		System.out.println("TIẾN TRÌNH TỐI ƯU HÓA (BEST OF GEN):");
 		System.out.println(BORDER);
-		System.out.printf(HEADER_FORMAT, "GEN", "ĐỘ SÁNG", "CHI PHÍ", "T.GIAN", "Q.ĐƯỜNG", "LỘ TRÌNH (TỐI ƯU GEN)");
+		System.out.printf(HEADER_FORMAT,
+		        "GEN", "ĐỘ SÁNG", "CHI PHÍ", "T.GIAN", "Q.ĐƯỜNG", "GEN(ms)", "LỘ TRÌNH");
 		System.out.println(BORDER);
 
 		// --- VÒNG LẶP CHÍNH ---
@@ -81,28 +90,40 @@ public class FireflyAlgorithm {
 		// Biến theo dõi sự trì trệ
 		int stagnationCount = 0;
 		double lastBestBrightness = -1.0;
-
+		
+		long algoStartTime = System.nanoTime(); // thời gian bắt đầu thuật toán
 		while (g < Constant.MAX_GENERATION) {
-//			double progress = (double) g / Constant.MAX_GENERATION;
-//			Constant.GAMMA = 0.1 + (2.0 - 0.1) * progress;
+			long genStartTime = System.nanoTime(); // thời gian từng genp
 			for (int i = 0; i < population.size(); i++) {
 				for (int j = 0; j < population.size(); j++) {
 					Firefly fi = population.get(i);
 					Firefly fj = population.get(j);
 
 					if (fj.getBrightness() > fi.getBrightness()) {
-						double r = routingService.jaccardDistance(fi.getRoute(), fj.getRoute());
-						double beta = routingService.calculateAttractiveness(Constant.BETA_0, Constant.GAMMA, r);
+						try { // xử lý lỗi nếu đom đóm lỗi thì bỏ qua con đó gen vẫn chạy
+		                    double r = routingService.jaccardDistance(fi.getRoute(), fj.getRoute());
+		                    double beta = routingService.calculateAttractiveness(
+		                            Constant.BETA_0, Constant.GAMMA, r);
 
-						if (random.nextDouble() < beta) {
-							Route newRoute = routingService.crossover(fi.getRoute(), fj.getRoute());
-							fi.setRoute(newRoute);
-						}
-						if (random.nextDouble() < Constant.ALPHA) {
-							Route mutated = routingService.mutate(fi.getRoute());
-							fi.setRoute(mutated);
-						}
-						fi.calculateBrightness();
+		                    if (random.nextDouble() < beta) {
+		                        Route newRoute = routingService.crossover(fi.getRoute(), fj.getRoute());
+		                        if (newRoute != null) {
+		                            fi.setRoute(newRoute);
+		                        }
+		                    }
+
+		                    if (random.nextDouble() < Constant.ALPHA) {
+		                        Route mutated = routingService.mutate(fi.getRoute());
+		                        if (mutated != null) {
+		                            fi.setRoute(mutated);
+		                        }
+		                    }
+
+		                    fi.calculateBrightness();
+
+		                } catch (Exception e) {
+		                    System.err.println("[GEN " + g + "] Firefly update error: " + e.getMessage());
+		                }
 					}
 				}
 			}
@@ -131,10 +152,16 @@ public class FireflyAlgorithm {
 						+ " Gen liên tiếp! Kích hoạt đột biến diện rộng (Trừ Top 3)...");
 
 				for (int k = 2; k < population.size(); k++) {
-					Firefly f = population.get(k);
-					Route mutatedRoute = routingService.mutate(f.getRoute());
-					f.setRoute(mutatedRoute);
-					f.calculateBrightness();
+					 try {
+				            Firefly f = population.get(k);
+				            Route mutatedRoute = routingService.mutate(f.getRoute());
+				            if (mutatedRoute != null) {
+				                f.setRoute(mutatedRoute);
+				                f.calculateBrightness();
+				            }
+				        } catch (Exception e) {
+				            System.err.println("[STAGNATION MUTATE ERROR] index " + k);
+				        }
 				}
 				stagnationCount = 0;
 				Collections.sort(population); // Sort lại ngay để đảm bảo gen sau đúng thứ tự
@@ -142,9 +169,20 @@ public class FireflyAlgorithm {
 
 			// --- IN KẾT QUẢ ---
 			Route r = best.getRoute();
-			System.out.printf(TABLE_FORMAT, g, best.getBrightness(), r.getTotalCost(), r.getTotalTime(),
-					r.getTotalDistance(), truncate(r.toString(), 57));
-
+			
+			long genEndTime = System.nanoTime();
+			double genTimeMs = (genEndTime - genStartTime) / 1_000_000.0;
+			
+			System.out.printf(TABLE_FORMAT,
+			        g,
+			        best.getBrightness(),
+			        r.getTotalCost(),
+			        r.getTotalTime(),
+			        r.getTotalDistance(),
+			        genTimeMs,
+			        truncate(r.toString(), 57)
+			);
+			
 			g++;
 		}
 		System.out.println(BORDER);

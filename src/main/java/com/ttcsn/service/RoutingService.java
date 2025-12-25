@@ -36,28 +36,42 @@ public class RoutingService {
 	}
 
 	public Route generateRandomRoute(Node start, Node end) {
-		List<Edge> path = new ArrayList<>();
-		Set<Node> visited = new HashSet<>();
-		boolean found = findPathDFS(start, end, path, visited);
-		if (!found) {
-			System.err.println("Cảnh báo: Không tìm thấy đường từ " + start.getName() + " đến " + end.getName());
-			return null;
+		try {
+			if (graph == null || start == null || end == null) return null;
+			
+			List<Edge> path = new ArrayList<>();
+			Set<Node> visited = new HashSet<>();
+			boolean found = findPathDFS(start, end, path, visited);
+			if (!found) {
+				System.err.println("Cảnh báo: Không tìm thấy đường từ " + start.getName() + " đến " + end.getName());
+				return null;
+			}
+			return buildRouteFromPath(start, path);
+		}catch(Exception e) {
+			System.err.println("[generateRandomRoute ERROR] " + e.getMessage());
+	        return null;
 		}
-		return buildRouteFromPath(start, path);
 	}
 
 	// Overload dùng cho hàm mutate
 	public Route generateRandomRoute(Node start, Node end, Set<Node> existingNode) {
-		List<Edge> path = new ArrayList<>();
-		// Copy các node đã tồn tại để tránh đi lặp lại
-		Set<Node> visited = new HashSet<>(existingNode);
-		boolean found = findPathDFS(start, end, path, visited);
+		try {
+			if (graph == null || start == null || end == null) return null;
+			
+			List<Edge> path = new ArrayList<>();
+			// Copy các node đã tồn tại để tránh đi lặp lại
+			Set<Node> visited = new HashSet<>(existingNode);
+			boolean found = findPathDFS(start, end, path, visited);
 
-		if (!found) {
-			return null;
-		}
+			if (!found) {
+				return null;
+			}
 
-		return buildRouteFromPath(start, path);
+			return buildRouteFromPath(start, path);
+		}catch (Exception e) {
+	        System.err.println("[generateRandomRoute MUTATE ERROR] " + e.getMessage());
+	        return null;
+	    }
 	}
 
 	// convert List<Edge> thành Route Object
@@ -71,63 +85,71 @@ public class RoutingService {
 	}
 
 	public Route crossover(Route r1, Route r2) {
-		List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 kém hơn
-		List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 sáng hơn
+		try {
+			//thiếu 1 trong 2 route thì bỏ qua trả về r1 
+			if (r1 == null || r2 == null) return r1;
+			
+			List<Node> n1 = new ArrayList<>(r1.getNodes()); // r1 kém hơn
+			List<Node> n2 = new ArrayList<>(r2.getNodes()); // r2 sáng hơn
 
-		// Tìm các điểm chung (trừ đầu và cuối)
-		List<Node> commonNodes = new ArrayList<>();
-		for (int i = 1; i < n1.size() - 1; i++) {
-			Node n = n1.get(i);
-			if (n2.contains(n)) {
-				commonNodes.add(n);
-			}
-		}
-
-		// Không có điểm chung => không lai ghép, r1 giữ nguyên
-		if (commonNodes.isEmpty()) {
-			return new Route(r1);
-		}
-
-		// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
-		Node cutPoint = commonNodes.get(random.nextInt(commonNodes.size()));
-		// System.out.println("Điểm chung: " + cutPoint);
-
-		int index1 = n1.indexOf(cutPoint); // r1
-		int index2 = n2.indexOf(cutPoint); // r2
-
-		// Tạo route mới: đầu từ r1 đến cutPoint, cuối từ r2 sau cutPoint
-		List<Node> newRouteNodes = new ArrayList<>(n1.subList(0, index1 + 1)); // phần đầu r1
-		if (index2 + 1 < n2.size()) {
-			newRouteNodes.addAll(n2.subList(index2 + 1, n2.size())); // phần sau r2
-		}
-
-		Route newRoute = new Route();
-
-		for (int i = 0; i < newRouteNodes.size(); i++) {
-			Node currentNode = newRouteNodes.get(i);
-			Edge edge = null;
-
-			// Nếu có node tiếp theo
-			if (i < newRouteNodes.size() - 1) {
-				Node nextNode = newRouteNodes.get(i + 1);
-
-				// Tìm edge ưu tiên trong r2, fallback r1
-				edge = findEdgeBetween(r1, currentNode, nextNode);
-				if (edge == null) {
-					edge = findEdgeBetween(r2, currentNode, nextNode);
-				}
-
-				// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
-				if (edge == null) {
-					System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r1");
-					return new Route(r1);
+			// Tìm các điểm chung (trừ đầu và cuối)
+			List<Node> commonNodes = new ArrayList<>();
+			for (int i = 1; i < n1.size() - 1; i++) {
+				Node n = n1.get(i);
+				if (n2.contains(n)) {
+					commonNodes.add(n);
 				}
 			}
 
-			newRoute.addStep(currentNode, edge);
-		}
+			// Không có điểm chung => không lai ghép, r1 giữ nguyên
+			if (commonNodes.isEmpty()) {
+				return new Route(r1);
+			}
 
-		return newRoute;
+			// Chọn ngẫu nhiên 1 điểm chung làm điểm cắt
+			Node cutPoint = commonNodes.get(random.nextInt(commonNodes.size()));
+			// System.out.println("Điểm chung: " + cutPoint);
+
+			int index1 = n1.indexOf(cutPoint); // r1
+			int index2 = n2.indexOf(cutPoint); // r2
+
+			// Tạo route mới: đầu từ r1 đến cutPoint, cuối từ r2 sau cutPoint
+			List<Node> newRouteNodes = new ArrayList<>(n1.subList(0, index1 + 1)); // phần đầu r1
+			if (index2 + 1 < n2.size()) {
+				newRouteNodes.addAll(n2.subList(index2 + 1, n2.size())); // phần sau r2
+			}
+
+			Route newRoute = new Route();
+
+			for (int i = 0; i < newRouteNodes.size(); i++) {
+				Node currentNode = newRouteNodes.get(i);
+				Edge edge = null;
+
+				// Nếu có node tiếp theo
+				if (i < newRouteNodes.size() - 1) {
+					Node nextNode = newRouteNodes.get(i + 1);
+
+					// Tìm edge ưu tiên trong r2, fallback r1
+					edge = findEdgeBetween(r1, currentNode, nextNode);
+					if (edge == null) {
+						edge = findEdgeBetween(r2, currentNode, nextNode);
+					}
+
+					// Nếu vẫn null => không hợp lệ, r2 giữ nguyên
+					if (edge == null) {
+						System.out.println("Edge null giữa " + currentNode + " -> " + nextNode + ", fallback r1");
+						return new Route(r1);
+					}
+				}
+
+				newRoute.addStep(currentNode, edge);
+			}
+
+			return newRoute;
+		}catch (Exception e) {
+	        System.err.println("[CROSSOVER ERROR] " + e.getMessage());
+	        return new Route(r1);
+	    }
 	}
 
 	private Edge findEdgeBetween(Route route, Node from, Node to) {
@@ -198,106 +220,118 @@ public class RoutingService {
 
 	// Đột biến
 	public Route mutate(Route route) {
-//		System.out.println("\n[MUTATE] Lộ trình GỐC: " + route);
-		List<Node> nodes = route.getNodes();
-		if (nodes.size() < 2)
-			return route;
+		try {
+			if (route == null) return null;
+			
+//			System.out.println("\n[MUTATE] Lộ trình GỐC: " + route);
+			List<Node> nodes = route.getNodes();
+			if (nodes.size() < 2)
+				return route;
 
-		int u_index = random.nextInt(nodes.size() - 1);
-		int v_index = u_index + 1 + random.nextInt(nodes.size() - 1 - u_index);
-		if (v_index >= nodes.size())
-			v_index = nodes.size() - 1;
+			int u_index = random.nextInt(nodes.size() - 1);
+			int v_index = u_index + 1 + random.nextInt(nodes.size() - 1 - u_index);
+			if (v_index >= nodes.size())
+				v_index = nodes.size() - 1;
 
-		Node u = nodes.get(u_index);
-		Node v = nodes.get(v_index);
-		/*
-		 * System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " +
-		 * u_index + ") TỚI [" + v + "] (index " + v_index + ")");
-		 */
+			Node u = nodes.get(u_index);
+			Node v = nodes.get(v_index);
+			/*
+			 * System.out.println("[MUTATE] --- Đột biến đoạn: [" + u + "] (index " +
+			 * u_index + ") TỚI [" + v + "] (index " + v_index + ")");
+			 */
 
-		Set<Node> existingNodes = new HashSet<>();
-		for (int i = 0; i < u_index; i++) {
-			existingNodes.add(nodes.get(i));
-		}
-		for (int i = v_index + 1; i < nodes.size(); i++) {
-			existingNodes.add(nodes.get(i));
-		}
+			Set<Node> existingNodes = new HashSet<>();
+			for (int i = 0; i < u_index; i++) {
+				existingNodes.add(nodes.get(i));
+			}
+			for (int i = v_index + 1; i < nodes.size(); i++) {
+				existingNodes.add(nodes.get(i));
+			}
 
-		List<Edge> newEdges = new ArrayList<>();
-		for (int i = 0; i < u_index; i++) {
-			newEdges.add(route.getEdges().get(i));
-		}
-		Route middleRoute = generateRandomRoute(u, v, existingNodes);
-		if (middleRoute == null || middleRoute.getEdges().isEmpty()) {
-			// System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ
-			// nguyên.");
-			return route;
-		}
-//		System.out.println("[MUTATE] --- Đoạn thay thế: " + middleRoute);
-		newEdges.addAll(middleRoute.getEdges());
-		for (int i = v_index; i < nodes.size() - 1; i++) {
-			newEdges.add(route.getEdges().get(i));
-		}
+			List<Edge> newEdges = new ArrayList<>();
+			for (int i = 0; i < u_index; i++) {
+				newEdges.add(route.getEdges().get(i));
+			}
+			Route middleRoute = generateRandomRoute(u, v, existingNodes);
+			if (middleRoute == null || middleRoute.getEdges().isEmpty()) {
+				// System.out.println("[MUTATE] -> Thất bại (Không tìm được đường thay thế). Giữ
+				// nguyên.");
+				return route;
+			}
+//			System.out.println("[MUTATE] --- Đoạn thay thế: " + middleRoute);
+			newEdges.addAll(middleRoute.getEdges());
+			for (int i = v_index; i < nodes.size() - 1; i++) {
+				newEdges.add(route.getEdges().get(i));
+			}
 
-		Route newRoute = new Route();
-		newRoute.addStep(nodes.get(0), null);
-		for (Edge edge : newEdges) {
-			newRoute.addStep(edge.getTo(), edge);
-		}
-//		System.out.println("[MUTATE] Lộ trình MỚI: " + newRoute);
+			Route newRoute = new Route();
+			newRoute.addStep(nodes.get(0), null);
+			for (Edge edge : newEdges) {
+				newRoute.addStep(edge.getTo(), edge);
+			}
+//			System.out.println("[MUTATE] Lộ trình MỚI: " + newRoute);
 
-		return newRoute;
+			return newRoute;
+		}catch (Exception e) {
+	        System.err.println("[MUTATE ERROR] " + e.getMessage());
+	        return route;
+	    }
 	}
 
 	public Route runDijkstra(Node startNode, Node endNode, double globalStartTime) {
-		// Lưu thời gian ngắn nhất để đến được mỗi Node
-		Map<Integer, Double> minTimeMap = new HashMap<>();
-		// Lưu vết đường đi
-		Map<Integer, Edge> pathTrace = new HashMap<>();
+		try {
+			// Lưu thời gian ngắn nhất để đến được mỗi Node
+			Map<Integer, Double> minTimeMap = new HashMap<>();
+			// Lưu vết đường đi
+			Map<Integer, Edge> pathTrace = new HashMap<>();
 
-		// PriorityQueue sắp xếp Node theo thời gian tích lũy tăng dần
-		PriorityQueue<NodeTimeWrapper> pq = new PriorityQueue<>(Comparator.comparingDouble(nt -> nt.accumulatedTime));
+			// PriorityQueue sắp xếp Node theo thời gian tích lũy tăng dần
+			PriorityQueue<NodeTimeWrapper> pq = new PriorityQueue<>(Comparator.comparingDouble(nt -> nt.accumulatedTime));
 
-		// Khởi tạo Node
-		for (Node node : graph.getNodes()) {
-			minTimeMap.put(node.getId(), Double.MAX_VALUE);
-		}
-		minTimeMap.put(startNode.getId(), 0.0);
+			// Khởi tạo Node
+			for (Node node : graph.getNodes()) {
+				minTimeMap.put(node.getId(), Double.MAX_VALUE);
+			}
+			minTimeMap.put(startNode.getId(), 0.0);
 
-		// Bắt đầu từ StartNode với thời gian là 0
-		pq.add(new NodeTimeWrapper(startNode, 0.0));
+			// Bắt đầu từ StartNode với thời gian là 0
+			pq.add(new NodeTimeWrapper(startNode, 0.0));
 
-		while (!pq.isEmpty()) {
-			NodeTimeWrapper current = pq.poll();
-			Node u = current.node;
-			double timeElapsedSoFar = current.accumulatedTime;
-			if (timeElapsedSoFar > minTimeMap.get(u.getId()))
-				continue;
-			// Điều kiện dừng
-			if (u.equals(endNode))
-				break;
-			// Duyệt các cạnh kề
-			List<Edge> neighbors = graph.getNeighbors(u);
-			if (neighbors != null) {
-				for (Edge edge : neighbors) {
-					Node v = edge.getTo();
+			while (!pq.isEmpty()) {
+				NodeTimeWrapper current = pq.poll();
+				Node u = current.node;
+				double timeElapsedSoFar = current.accumulatedTime;
+				if (timeElapsedSoFar > minTimeMap.get(u.getId()))
+					continue;
+				// Điều kiện dừng
+				if (u.equals(endNode))
+					break;
+				// Duyệt các cạnh kề
+				List<Edge> neighbors = graph.getNeighbors(u);
+				if (neighbors != null) {
+					for (Edge edge : neighbors) {
+						Node v = edge.getTo();
 
-					// Tính thời gian
-					double actualCurrentTime = globalStartTime + timeElapsedSoFar;
-					double travelTimeOnEdge = edge.calculateTravelTime(actualCurrentTime);
-					double newTotalTime = timeElapsedSoFar + travelTimeOnEdge;
+						// Tính thời gian
+						double actualCurrentTime = globalStartTime + timeElapsedSoFar;
+						double travelTimeOnEdge = edge.calculateTravelTime(actualCurrentTime);
+						double newTotalTime = timeElapsedSoFar + travelTimeOnEdge;
 
-					// Nếu tìm được đường nhanh hơn đến v
-					if (newTotalTime < minTimeMap.get(v.getId())) {
-						minTimeMap.put(v.getId(), newTotalTime);
-						pathTrace.put(v.getId(), edge); // Lưu vết
-						pq.add(new NodeTimeWrapper(v, newTotalTime));
+						// Nếu tìm được đường nhanh hơn đến v
+						if (newTotalTime < minTimeMap.get(v.getId())) {
+							minTimeMap.put(v.getId(), newTotalTime);
+							pathTrace.put(v.getId(), edge); // Lưu vết
+							pq.add(new NodeTimeWrapper(v, newTotalTime));
+						}
 					}
 				}
 			}
-		}
 
-		return buildRouteFromTrace(startNode, endNode, pathTrace);
+			return buildRouteFromTrace(startNode, endNode, pathTrace);
+		}catch (Exception e) {
+	        System.err.println("[DIJKSTRA ERROR] " + e.getMessage());
+	        return null;
+	    }
 	}
 
 	// Hàm truy vết ngược từ Đích về Xuất phát để tạo đối tượng Route
